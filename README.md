@@ -1,22 +1,26 @@
-# Protocore Finance App
+# Protocore Finance App (Realtime + Roles + UPI + Reports)
 
-Vite + React + Tailwind demo app for splitting raw-material expenses between 3 founders.
+Vite + React + Tailwind + Firebase (Auth + Firestore)
+- Email/password login + password reset
+- Founders: Dhruv, Vishal, Shubham
+- Role-based access: admin can edit founders & manage invites
+- UPI payment links + QR for settlements
+- Monthly reports + CSV export
 
-## Run locally
+## Firestore
+- orgs/protocore/meta/settings: { founders: [...], adminEmails: ['you@domain.com'] }
+- orgs/protocore/transactions: expense docs
+- orgs/protocore/meta/invites: { email, createdAt, createdBy }
 
-```bash
+## Setup
+1) Create Firebase project, enable Auth (Email/Password) + Firestore
+2) Copy `.env.example` -> `.env` with your config
+3) Add your email into `adminEmails` array via Firestore (or app's Admin tab)
+4) Create users in Firebase Console, or use the 'Invites' list as a checklist
+
+## Run
 npm install
 npm run dev
-```
-
-## Build
-
-```bash
-npm run build
-```
 
 ## Deploy
-
-This project is ready to deploy on Vercel or Netlify. On Vercel, just connect the repo and use default settings.
-
-The embedded logo is located at `src/assets/protocore-logo.jpeg`.
+Set environment variables on Vercel, build with `npm run build`, output `dist`.

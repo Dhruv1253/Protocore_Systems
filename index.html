@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #F7F8FA; color: #0F1720; font-family: Manrope, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #D81324; text-decoration: none; }
+  a:hover { color: #0F1720; }
+  input, select, textarea, button { font-family: inherit; border-radius: 10px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid #F7C7CB; outline-offset: -1px; border-color: #D81324; }
+  ::placeholder { color: #98A2B3; }
+</style>
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#F7F8FA">
+
+  <header style="position:sticky;top:0;z-index:20;background:#F7F8FA;border-bottom:1px solid #E4E7EC">
+    <div style="max-width:1320px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;min-height:68px;padding-top:10px;padding-bottom:10px">
+      <div onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+        <img src="./pc-logo.png" alt="Protocore System" style="height: 49px; width: 113px; display: block; mix-blend-mode: multiply">
+        <div style="font: 400 9px/1.5 'IBM Plex Mono',monospace; letter-spacing: .14em; color: #667085; max-width: 270px; padding-left: 14px; border-left: 1px solid #E4E7EC; height: 15px; width: 252px; font-size: 8px">CONTROL PANELS | AUTOMATION | ACADEMY</div>
+      </div>
+      <nav style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+        <button onClick="{{ goHome }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Home</button>
+        <button onClick="{{ goProducts }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Products</button>
+        <button onClick="{{ goCourses }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Courses</button>
+        <button onClick="{{ goContact }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Contact</button>
+        <button onClick="{{ goFinance }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Finance</button>
+        <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ goLogin }}" style="margin-left:8px;background:#0F1720;color:#F7F8FA;border:0;padding:11px 20px;font:600 13px Manrope,sans-serif;cursor:pointer">Login</button>
+        </sc-if>
+        <sc-if value="{{ loggedIn }}">
+          <div style="display:flex;align-items:center;gap:10px;margin-left:8px;padding-left:14px;border-left:1px solid #E4E7EC">
+            <div style="font:500 10px/1.5 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#667085;text-align:right">{{ roleLabel }}<br>{{ userEmail }}</div>
+            <button onClick="{{ logout }}" style="background:none;border:1px solid #E4E7EC;padding:9px 14px;font:500 12px Manrope,sans-serif;color:#0F1720;cursor:pointer">Log out</button>
+          </div>
+        </sc-if>
+      </nav>
+    </div>
+    <sc-if value="{{ loggedIn }}">
+      <div style="background:#0F1720;color:#F7F8FA">
+        <div style="max-width:1320px;margin:0 auto;padding:0 24px;display:flex;gap:2px;overflow-x:auto">
+          <sc-for list="{{ appNav }}" as="n" hint-placeholder-count="4">
+            <button onClick="{{ n.open }}" style="background:{{ n.bg }};color:{{ n.fg }};border:0;padding:13px 16px;font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;cursor:pointer">{{ n.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </header>
+
+  <main style="flex:1">
+
+    <!-- ============ HOME ============ -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <section style="background:#0B0F14;color:#F7F8FA;background-image:radial-gradient(120% 90% at 78% 18%, rgba(216,19,36,.16) 0%, rgba(11,15,20,0) 62%)">
+        <div style="max-width: 1320px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit,minmax(330px,1fr)); gap: 36px; align-items: center; position: relative">
+          <div style="padding:78px 0;display:flex;flex-direction:column;gap:26px;align-items:flex-start">
+            <div style="display:flex;align-items:center;gap:10px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#FF8A93">
+              <span style="width:6px;height:6px;border-radius:999px;background:#D81324;display:block"></span>EST. 2025 · NASHIK, INDIA
+            </div>
+            <h1 style="margin: 0; font: 700 clamp(38px,4.9vw,64px)/1.0 Manrope,sans-serif; letter-spacing: -.03em; text-wrap: balance; color: #7B0000">Systems</h1>
+            
+            <p style="margin:0;max-width:46ch;font:400 17px/1.65 Manrope,sans-serif;color:#AAB4C0;text-wrap:pretty">We design and build control panels, automation solutions, pump &amp; HVAC systems, and remote monitoring technologies — backed by practical engineering expertise.</p><div style="display:flex;gap:12px;flex-wrap:wrap">
+              
+              
+            </div><button onClick="{{ goProducts }}" style="background:#F7F8FA;color:#0B0F14;border:0;padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">Explore Products</button><button onClick="{{ goCourses }}" style="background:transparent;color:#F7F8FA;border:1px solid rgba(255,255,255,.28);padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">View Courses</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;padding:24px 0 40px">
+            <x-import component-from-global-scope="panel-3d" from="./panel-3d.js" hint-size="100%,460px" style="width: 100%; min-height: 460px; padding-top: 0px; padding-bottom: 0px; border-width: 1px; border-style: solid; border-color: #000000"></x-import>
+          </div>
+        <h1 style="margin: 0; font: 700 clamp(38px,4.9vw,64px)/1.0 Manrope,sans-serif; letter-spacing: -.03em; text-wrap: balance; align-self: auto; position: absolute; left: 221px; top: 121px; width: 615px; height: 47px; font-size: 40px">Engineered to Specifications</h1></div>
+        <div style="max-width:1320px;margin:0 auto;padding:0 24px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:rgba(255,255,255,.1);border-top:1px solid rgba(255,255,255,.1)">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+              <div style="background:#0B0F14;padding:24px 22px">
+                <div style="font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ s.v }}</div>
+                <div style="margin-top:8px;font:400 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#8A949F">{{ s.k }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <section style="max-width:1320px;margin:0 auto;padding:64px 24px 24px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;border-bottom:1px solid #0F1720;padding-bottom:14px">
+          <h2 style="margin:0;font:700 30px/1 Manrope,sans-serif;letter-spacing:-.02em">Product portfolio</h2>
+          <div style="font:400 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#667085">{{ productCount }} PUBLISHED CATEGORIES</div>
+        </div>
+      </section>
+      <section style="max-width:1320px;margin:0 auto;padding:0 24px 72px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+          <sc-for list="{{ homeProducts }}" as="p" hint-placeholder-count="6">
+            <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:0;cursor:pointer;display:flex;flex-direction:column" style-hover="background:#F9FAFB">
+              <div role="img" aria-label="{{ p.name }}" style="width:100%;height:168px;background-color:#EDF0F4;background-image:url({{ p.img }});background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:9px;flex:1">
+                <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#D81324">{{ p.category }}</div>
+                <div style="font:600 19px/1.2 Manrope,sans-serif;letter-spacing:-.01em">{{ p.name }}</div>
+                <div style="font:400 14px/1.55 Manrope,sans-serif;color:#667085;text-wrap:pretty">{{ p.blurb }}</div>
+                <div style="margin-top:auto;padding-top:14px;font:600 12.5px/1 Manrope,sans-serif;color:#0F1720">View specifications →</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="background:#0F1720;color:#F7F8FA">
+        <div style="max-width:1320px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:48px;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
+            <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#FF9DA4">PC ACADEMY</div>
+            <h2 style="margin:0;font:700 clamp(28px,3vw,40px)/1.08 Manrope,sans-serif;letter-spacing:-.02em;max-width:24ch">Panel design and automation training, from the people who build them.</h2>
+            <p style="margin:0;max-width:48ch;font:400 16px/1.6 Manrope,sans-serif;color:#B7BECD">Structured courses on LT panel design, PLC and VFD commissioning, and IoT-based remote monitoring. Buy once, learn at your own pace, earn a certificate.</p>
+            <button onClick="{{ goCourses }}" style="background:#F7F8FA;color:#0F1720;border:0;padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">Browse the catalogue</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ homeCourses }}" as="c" hint-placeholder-count="3">
+              <div onClick="{{ c.open }}" style="background:#182230;border-radius:14px;padding:20px;display:flex;justify-content:space-between;gap:20px;align-items:center;cursor:pointer">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="font:600 16px/1.25 Manrope,sans-serif">{{ c.title }}</div>
+                  <div style="font:400 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#98A2B3">{{ c.meta }}</div>
+                </div>
+                <div style="font:600 16px/1 Manrope,sans-serif;white-space:nowrap">{{ c.priceFmt }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ PRODUCTS INDEX ============ -->
+    <sc-if value="{{ isProducts }}">
+      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 0">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">PRODUCTS</div>
+        <h1 style="margin:14px 0 0;font:700 clamp(30px,3.6vw,46px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:22ch">Panels and systems we build</h1>
+        <p style="margin:16px 0 0;max-width:58ch;font:400 16px/1.6 Manrope,sans-serif;color:#475467">Every category below is a record in the product catalogue. Categories, specifications, documents and images are managed from the admin console, not written into the site.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:34px 0 0;padding-bottom:28px;border-bottom:1px solid #E4E7EC">
+          <sc-for list="{{ categoryChips }}" as="ch" hint-placeholder-count="4">
+            <button onClick="{{ ch.pick }}" style="background:{{ ch.bg }};color:{{ ch.fg }};border:1px solid {{ ch.bd }};padding:9px 16px;font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">{{ ch.label }}</button>
+          </sc-for>
+        </div>
+      </section>
+      <section style="max-width:1320px;margin:0 auto;padding:28px 24px 80px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+          <sc-for list="{{ filteredProducts }}" as="p" hint-placeholder-count="6">
+            <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);cursor:pointer;display:flex;flex-direction:column" style-hover="background:#F9FAFB">
+              <div role="img" aria-label="{{ p.name }}" style="width:100%;height:168px;background-color:#EDF0F4;background-image:url({{ p.img }});background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:9px;flex:1">
+                <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#D81324">{{ p.category }}</div>
+                <div style="font:600 19px/1.2 Manrope,sans-serif;letter-spacing:-.01em">{{ p.name }}</div>
+                <div style="font:400 14px/1.55 Manrope,sans-serif;color:#667085;text-wrap:pretty">{{ p.blurb }}</div>
+                <div style="margin-top:auto;padding-top:14px;font:600 12.5px/1 Manrope,sans-serif">View specifications →</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ PRODUCT DETAIL ============ -->
+    <sc-if value="{{ isProduct }}">
+      <section style="border-bottom:1px solid #E4E7EC">
+        <div style="max-width:1320px;margin:0 auto;padding:22px 24px;font:400 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#667085">
+          <span onClick="{{ goProducts }}" style="cursor:pointer;color:#D81324">PRODUCTS</span> / {{ product.slug }}
+        </div>
+      </section>
+      <section style="max-width:1320px;margin:0 auto;padding:0 24px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+          <div style="padding:52px 48px 52px 0;display:flex;flex-direction:column;gap:22px;align-items:flex-start">
+            <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#D81324">{{ product.category }}</div>
+            <h1 style="margin:0;font:700 clamp(30px,3.6vw,48px)/1.03 Manrope,sans-serif;letter-spacing:-.025em">{{ product.name }}</h1>
+            <p style="margin:0;max-width:50ch;font:400 17px/1.6 Manrope,sans-serif;color:#475467;text-wrap:pretty">{{ product.blurb }}</p>
+            <p style="margin:0;max-width:56ch;font:400 15px/1.7 Manrope,sans-serif;color:#667085;text-wrap:pretty">{{ product.desc }}</p>
+            <button onClick="{{ enquireProduct }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px 28px;font:600 14px Manrope,sans-serif;cursor:pointer">Request Enquiry</button>
+          </div>
+          <div style="min-height:400px;background:#EDF0F4;border-radius:18px;overflow:hidden;margin:0 0 0 24px">
+            <div role="img" aria-label="{{ product.name }}" style="width:100%;height:100%;min-height:400px;background-color:#EDF0F4;background-image:url({{ product.img }});background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+          </div>
+        </div>
+      </section>
+      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+        <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:16px">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Key features</div>
+          <sc-for list="{{ product.features }}" as="f" hint-placeholder-count="5">
+            <div style="display:flex;gap:12px;font:400 15px/1.5 Manrope,sans-serif;color:#344054">
+              <span style="color:#D81324">—</span><span>{{ f }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:16px">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Applications</div>
+          <sc-for list="{{ product.apps }}" as="a" hint-placeholder-count="5">
+            <div style="display:flex;gap:12px;font:400 15px/1.5 Manrope,sans-serif;color:#344054">
+              <span style="color:#D81324">—</span><span>{{ a }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:14px">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Technical specifications</div>
+          <sc-for list="{{ product.specs }}" as="s" hint-placeholder-count="6">
+            <div style="display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid #EAECF0;font:400 13px/1.4 'IBM Plex Mono',monospace">
+              <span style="color:#667085">{{ s.k }}</span><span style="text-align:right">{{ s.v }}</span>
+            </div>
+          </sc-for>
+          <div style="margin-top:10px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Documents</div>
+          <sc-for list="{{ product.docs }}" as="d" hint-placeholder-count="2">
+            <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;background:#F9FAFB;border:1px solid #E4E7EC;padding:12px 14px;font:400 12.5px/1 'IBM Plex Mono',monospace">
+              <span>{{ d.name }}</span><span style="color:#667085">{{ d.size }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ COURSES ============ -->
+    <sc-if value="{{ isCourses }}">
+      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 0">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#D81324">PC ACADEMY</div>
+        <h1 style="margin:14px 0 0;font:700 clamp(30px,3.6vw,46px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:24ch">Courses for panel and automation engineers</h1>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin:32px 0 0;padding-bottom:26px;border-bottom:1px solid #E4E7EC">
+          <input value="{{ q }}" onChange="{{ onSearch }}" placeholder="Search courses, instructors, topics" style="flex:1;min-width:240px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:13px 15px;font:400 14px Manrope,sans-serif;color:#0F1720">
+          <sc-for list="{{ levelChips }}" as="ch" hint-placeholder-count="4">
+            <button onClick="{{ ch.pick }}" style="background:{{ ch.bg }};color:{{ ch.fg }};border:1px solid {{ ch.bd }};padding:9px 16px;font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">{{ ch.label }}</button>
+          </sc-for>
+        </div>
+      </section>
+      <section style="max-width:1320px;margin:0 auto;padding:28px 24px 80px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
+          <sc-for list="{{ filteredCourses }}" as="c" hint-placeholder-count="4">
+            <div onClick="{{ c.open }}" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);cursor:pointer;display:flex;flex-direction:column" style-hover="background:#F9FAFB">
+              <div role="img" aria-label="{{ c.title }}" style="width:100%;height:168px;background-color:#EDF0F4;background-image:url({{ c.img }});background-size:cover;background-position:center"></div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:10px;flex:1">
+                <div style="display:flex;justify-content:space-between;gap:12px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+                  <span>{{ c.level }}</span><span>★ {{ c.rating }} · {{ c.enrolled }} enrolled</span>
+                </div>
+                <div style="font:600 19px/1.22 Manrope,sans-serif;letter-spacing:-.01em">{{ c.title }}</div>
+                <div style="font:400 14px/1.55 Manrope,sans-serif;color:#667085;text-wrap:pretty">{{ c.blurb }}</div>
+                <div style="font:400 12.5px/1 'IBM Plex Mono',monospace;color:#667085">{{ c.instructor }} · {{ c.duration }}</div>
+                <div style="margin-top:auto;padding-top:14px;display:flex;align-items:baseline;gap:10px">
+                  <span style="font:700 22px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ c.priceFmt }}</span>
+                  <span style="font:400 13px/1 Manrope,sans-serif;color:#98A2B3;text-decoration:line-through">{{ c.mrpFmt }}</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ COURSE DETAIL ============ -->
+    <sc-if value="{{ isCourse }}">
+      <section style="border-bottom:1px solid #E4E7EC">
+        <div style="max-width:1320px;margin:0 auto;padding:22px 24px;font:400 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#667085">
+          <span onClick="{{ goCourses }}" style="cursor:pointer;color:#D81324">PC ACADEMY</span> / {{ course.level }}
+        </div>
+      </section>
+      <section style="max-width:1320px;margin:0 auto;padding:44px 24px 80px;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:48px">
+        <div style="display:flex;flex-direction:column;gap:34px;min-width:0">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.06 Manrope,sans-serif;letter-spacing:-.025em">{{ course.title }}</h1>
+            <p style="margin:0;max-width:60ch;font:400 16.5px/1.6 Manrope,sans-serif;color:#475467;text-wrap:pretty">{{ course.desc }}</p>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;font:400 12px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#667085">
+              <span>{{ course.instructor }}</span><span>{{ course.duration }}</span><span>{{ course.lessonCount }} LESSONS</span><span>★ {{ course.rating }}</span><span>{{ course.enrolled }} ENROLLED</span>
+            </div>
+          </div>
+          <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:16px">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">What you will learn</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+              <sc-for list="{{ course.learn }}" as="l" hint-placeholder-count="4">
+                <div style="display:flex;gap:10px;font:400 14.5px/1.5 Manrope,sans-serif;color:#344054"><span style="color:#D81324">—</span><span>{{ l }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Curriculum</div>
+            <sc-for list="{{ course.sections }}" as="s" hint-placeholder-count="3">
+              <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+                <div style="padding:15px 18px;border-bottom:1px solid #EAECF0;display:flex;justify-content:space-between;gap:16px;font:600 14.5px/1 Manrope,sans-serif">
+                  <span>{{ s.title }}</span><span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#667085">{{ s.meta }}</span>
+                </div>
+                <sc-for list="{{ s.lessons }}" as="ls" hint-placeholder-count="3">
+                  <div style="padding:12px 18px;display:flex;justify-content:space-between;gap:16px;align-items:center;border-bottom:1px solid #F0F2F5;font:400 14px/1.3 Manrope,sans-serif;color:#475467">
+                    <span>{{ ls.title }}</span>
+                    <span style="display:flex;gap:12px;align-items:center;font:400 11px/1 'IBM Plex Mono',monospace;color:{{ ls.tagColor }};white-space:nowrap">{{ ls.tag }} {{ ls.len }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:12px">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Requirements</div>
+              <sc-for list="{{ course.reqs }}" as="r" hint-placeholder-count="3">
+                <div style="font:400 14.5px/1.5 Manrope,sans-serif;color:#475467">{{ r }}</div>
+              </sc-for>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:16px">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Reviews</div>
+              <sc-for list="{{ course.reviews }}" as="rv" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <div style="font:400 11px/1 'IBM Plex Mono',monospace;color:#D81324">★ {{ rv.stars }} · {{ rv.who }}</div>
+                  <div style="font:400 14.5px/1.5 Manrope,sans-serif;color:#475467;text-wrap:pretty">{{ rv.text }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <aside style="min-width:0">
+          <div style="position:sticky;top:96px;border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);display:flex;flex-direction:column">
+            <div role="img" aria-label="{{ course.title }}" style="width:100%;height:150px;background-color:#EDF0F4;background-image:url({{ course.img }});background-size:cover;background-position:center"></div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;align-items:baseline;gap:10px">
+                <span style="font:700 30px/1 Manrope,sans-serif;letter-spacing:-.025em">{{ course.priceFmt }}</span>
+                <span style="font:400 14px/1 Manrope,sans-serif;color:#98A2B3;text-decoration:line-through">{{ course.mrpFmt }}</span>
+                <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:#D81324">{{ course.off }}</span>
+              </div>
+              <sc-if value="{{ courseOwned }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ goLearning }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Continue learning</button>
+              </sc-if>
+              <sc-if value="{{ courseNotOwned }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ buyCourse }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Buy now</button>
+                <div style="font:400 11px/1.6 'IBM Plex Mono',monospace;color:#667085">Checkout → Razorpay → server-side verification → enrolment. Payment is never confirmed from the browser alone.</div>
+              </sc-if>
+              <div style="border-top:1px solid #EAECF0;padding-top:14px;display:flex;flex-direction:column;gap:8px;font:400 12.5px/1 'IBM Plex Mono',monospace;color:#475467">
+                <div style="display:flex;justify-content:space-between"><span style="color:#667085">Lessons</span><span>{{ course.lessonCount }}</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#667085">Duration</span><span>{{ course.duration }}</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#667085">Level</span><span>{{ course.level }}</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#667085">Certificate</span><span>On completion</span></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </sc-if>
+
+    <!-- ============ CONTACT ============ -->
+    <sc-if value="{{ isContact }}">
+      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px">
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div>
+            <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">CONTACT</div>
+            <h1 style="margin:14px 0 0;font:700 clamp(30px,3.4vw,44px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">Tell us what you need built</h1>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <sc-for list="{{ contactInfo }}" as="ci" hint-placeholder-count="4">
+              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px 22px;display:flex;flex-direction:column;gap:6px">
+                <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">{{ ci.k }}</div>
+                <div style="font:400 15.5px/1.5 Manrope,sans-serif">{{ ci.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:16px">
+          <div style="font:600 19px/1 Manrope,sans-serif">Enquiry form</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+            <input value="{{ fName }}" onChange="{{ onFName }}" placeholder="Name" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+            <input value="{{ fEmail }}" onChange="{{ onFEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+            <input value="{{ fPhone }}" onChange="{{ onFPhone }}" placeholder="Phone" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+            <select value="{{ fType }}" onChange="{{ onFType }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+              <sc-for list="{{ enquiryTypes }}" as="t" hint-placeholder-count="5">
+                <option value="{{ t }}">{{ t }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <input value="{{ fSubject }}" onChange="{{ onFSubject }}" placeholder="Subject" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+          <textarea value="{{ fMsg }}" onChange="{{ onFMsg }}" placeholder="Message — include panel rating, quantity or site details where relevant" rows="5" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px/1.5 Manrope,sans-serif;resize:vertical"></textarea>
+          <button onClick="{{ sendEnquiry }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Send enquiry</button>
+          <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#ECFDF3;border:1px solid #A9EFC5;padding:14px;font:400 13px/1.5 'IBM Plex Mono',monospace;color:#067647">Logged as enquiry {{ enquiryId }} · visible to admin under Enquiries.</div>
+          </sc-if>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ FINANCE (gated) ============ -->
+    <sc-if value="{{ isFinance }}">
+      <sc-if value="{{ financeLocked }}" hint-placeholder-val="{{ true }}">
+        <section style="max-width:520px;margin:0 auto;padding:72px 24px 110px;display:flex;flex-direction:column;gap:18px">
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">RESTRICTED · FINANCE</div>
+          <h1 style="margin:0;font:700 30px/1.05 Manrope,sans-serif;letter-spacing:-.025em">Sign in to continue</h1>
+          <p style="margin:0;font:400 15px/1.6 Manrope,sans-serif;color:#475467">Company financial records are available to administrators and founders only.</p>
+          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:14px">
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Username</span>
+              <input value="{{ fiUser }}" onChange="{{ onFiUser }}" placeholder="Admin" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Password</span>
+              <input type="password" value="{{ fiPass }}" onChange="{{ onFiPass }}" placeholder="••••••••" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
+            </label>
+            <button onClick="{{ financeLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Unlock Finance</button>
+            <sc-if value="{{ fiError }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ fiError }}</div>
+            </sc-if>
+            <div style="font:400 11px/1.6 'IBM Plex Mono',monospace;color:#98A2B3">Credentials live in finance-auth.js — swap that file for Firebase Auth later.</div>
+          </div>
+        </section>
+      </sc-if>
+      <sc-if value="{{ financeOpen }}" hint-placeholder-val="{{ false }}">
+        <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+            <div>
+              <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">FINANCE · {{ fiWho }}</div>
+              <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Company finances</h1>
+            </div>
+            <button onClick="{{ financeLogout }}" style="background:transparent;color:#0F1720;border:1px solid #E4E7EC;padding:12px 18px;font:600 13px Manrope,sans-serif;white-space:nowrap;cursor:pointer">Lock Finance</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+            <sc-for list="{{ financeKpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px">
+                <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ k.k }}</div>
+                <div style="margin-top:12px;font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em;color:{{ k.color }}">{{ k.v }}</div>
+                <div style="margin-top:8px;font:400 11.5px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+            <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Monthly position</div>
+            <div style="overflow-x:auto">
+              <div style="min-width:640px">
+                <div style="display:grid;grid-template-columns:120px 1fr 1fr 1fr;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+                  <span>Month</span><span style="text-align:right">Course revenue</span><span style="text-align:right">Expenses</span><span style="text-align:right">Net</span>
+                </div>
+                <sc-for list="{{ financeRows }}" as="r" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:120px 1fr 1fr 1fr;gap:16px;padding:13px 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace">
+                    <span>{{ r.month }}</span>
+                    <span style="text-align:right">{{ r.rev }}</span>
+                    <span style="text-align:right">{{ r.exp }}</span>
+                    <span style="text-align:right;color:{{ r.netColor }};font-weight:500">{{ r.net }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Spend by category</div>
+            <sc-for list="{{ byCategory }}" as="c" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;font:400 13px/1 'IBM Plex Mono',monospace"><span>{{ c.name }}</span><span>{{ c.amt }}</span></div>
+                <div style="height:5px;border-radius:999px;background:#EAECF0"><div style="height:5px;border-radius:999px;background:#D81324;width:{{ c.pct }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+    </sc-if>
+
+    <!-- ============ LOGIN ============ -->
+    <sc-if value="{{ isLogin }}">
+      <section style="max-width:1320px;margin:0 auto;padding:72px 24px 96px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">SIGN IN</div>
+          <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">Protocore workspace</h1>
+          <p style="margin:0;max-width:46ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">One account, role-based access. Founders and employees reach expense management; students reach their courses. Roles come from the user record, not the URL.</p>
+          <div style="display:flex;flex-direction:column;gap:16px;margin-top:8px">
+            <sc-for list="{{ roleDocs }}" as="r" hint-placeholder-count="4">
+              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:16px 18px;display:flex;gap:16px;align-items:baseline">
+                <div style="min-width:92px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#D81324">{{ r.k }}</div>
+                <div style="font:400 14px/1.5 Manrope,sans-serif;color:#475467">{{ r.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:14px">
+          <input value="{{ lEmail }}" onChange="{{ onLEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
+          <input type="password" value="{{ lPass }}" onChange="{{ onLPass }}" placeholder="Password" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085;margin-top:6px">Sign in as (demo)</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+            <sc-for list="{{ roleChips }}" as="rc" hint-placeholder-count="4">
+              <button onClick="{{ rc.pick }}" style="background:{{ rc.bg }};color:{{ rc.fg }};border:1px solid {{ rc.bd }};padding:11px 8px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;cursor:pointer">{{ rc.label }}</button>
+            </sc-for>
+          </div>
+          <button onClick="{{ doLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer;margin-top:6px">Continue</button>
+          <div style="display:flex;justify-content:space-between;font:400 12px/1 'IBM Plex Mono',monospace;color:#667085">
+            <span style="color:#D81324;cursor:pointer">Forgot password</span><span style="color:#D81324;cursor:pointer">Create account</span>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ EXPENSE DASHBOARD ============ -->
+    <sc-if value="{{ isDash }}">
+      <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:26px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+          <div>
+            <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">EXPENSE MANAGEMENT</div>
+            <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Company expenses</h1>
+          </div>
+          <button onClick="{{ goAddExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 22px;font:600 13.5px Manrope,sans-serif;cursor:pointer">Record expense</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ k.k }}</div>
+              <div style="margin-top:12px;font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ k.v }}</div>
+              <div style="margin-top:8px;font:400 11.5px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ k.sub }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">By founder</div>
+              <div style="font:400 10px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ founderCount }} ACTIVE</div>
+            </div>
+            <sc-for list="{{ byFounder }}" as="f" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;justify-content:space-between;font:500 13.5px/1 Manrope,sans-serif"><span>{{ f.name }}</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:400">{{ f.amt }}</span></div>
+                <div style="height:8px;border-radius:999px;background:#EAECF0"><div style="height:8px;border-radius:999px;background:#0F1720;width:{{ f.pct }}"></div></div>
+                <div style="font:400 10px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ f.count }} ENTRIES · {{ f.share }} OF TOTAL</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">By category</div>
+            <sc-for list="{{ byCategory }}" as="c" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;font:400 13px/1 'IBM Plex Mono',monospace"><span>{{ c.name }}</span><span>{{ c.amt }}</span></div>
+                <div style="height:5px;border-radius:999px;background:#EAECF0"><div style="height:5px;border-radius:999px;background:#D81324;width:{{ c.pct }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+          <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085;margin-right:auto">Expense ledger</div>
+            <select value="{{ fFounder }}" onChange="{{ onFilterFounder }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:9px 12px;font:400 12.5px 'IBM Plex Mono',monospace">
+              <sc-for list="{{ founderOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fCategory }}" onChange="{{ onFilterCategory }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:9px 12px;font:400 12.5px 'IBM Plex Mono',monospace">
+              <sc-for list="{{ categoryOptions }}" as="o" hint-placeholder-count="6"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fStatus }}" onChange="{{ onFilterStatus }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:9px 12px;font:400 12.5px 'IBM Plex Mono',monospace">
+              <sc-for list="{{ statusOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <div style="min-width:860px">
+              <div style="display:grid;grid-template-columns:110px 96px 1fr 130px 120px 110px 110px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+                <span>ID</span><span>Date</span><span>Description</span><span>Category</span><span>Founder</span><span>Status</span><span style="text-align:right">Amount</span>
+              </div>
+              <sc-for list="{{ ledger }}" as="e" hint-placeholder-count="8">
+                <div style="display:grid;grid-template-columns:110px 96px 1fr 130px 120px 110px 110px;gap:16px;padding:{{ rowPad }} 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
+                  <span style="color:#98A2B3">{{ e.id }}</span>
+                  <span>{{ e.date }}</span>
+                  <span style="font-family:Manrope,sans-serif;font-size:14px">{{ e.desc }}</span>
+                  <span>{{ e.category }}</span>
+                  <span>{{ e.founder }}</span>
+                  <span><span style="background:{{ e.statusBg }};color:{{ e.statusFg }};padding:4px 10px;border-radius:999px;font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase">{{ e.status }}</span></span>
+                  <span style="text-align:right;font-weight:500">{{ e.amt }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:16px 22px;display:flex;justify-content:space-between;font:400 11.5px/1 'IBM Plex Mono',monospace;color:#667085">
+            <span>{{ ledgerCount }} ENTRIES SHOWN</span><span>SUBTOTAL {{ ledgerTotal }}</span>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ ADD EXPENSE ============ -->
+    <sc-if value="{{ isAdd }}">
+      <section style="max-width:760px;margin:0 auto;padding:44px 24px 96px;display:flex;flex-direction:column;gap:22px">
+        <div>
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">EXPENSE MANAGEMENT / NEW</div>
+          <h1 style="margin:10px 0 0;font:700 30px/1 Manrope,sans-serif;letter-spacing:-.025em">Record an expense</h1>
+        </div>
+        <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Founder</span>
+              <select value="{{ nFounder }}" onChange="{{ onNFounder }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+                <sc-for list="{{ activeFounderNames }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Date</span>
+              <input value="{{ nDate }}" onChange="{{ onNDate }}" placeholder="2026-09-12" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Amount (₹)</span>
+              <input value="{{ nAmount }}" onChange="{{ onNAmount }}" placeholder="0" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Category</span>
+              <select value="{{ nCategory }}" onChange="{{ onNCategory }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+                <sc-for list="{{ categories }}" as="o" hint-placeholder-count="6"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Payment method</span>
+              <select value="{{ nMethod }}" onChange="{{ onNMethod }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+                <sc-for list="{{ methods }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Status</span>
+              <select value="{{ nStatus }}" onChange="{{ onNStatus }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+                <sc-for list="{{ statuses }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:7px">
+            <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Description</span>
+            <input value="{{ nDesc }}" onChange="{{ onNDesc }}" placeholder="Site visit — Hinjewadi pump room" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
+          </label>
+          <div style="border:1px dashed #D0D5DD;border-radius:16px;background:#F9FAFB;padding:26px;text-align:center;font:400 12px/1.6 'IBM Plex Mono',monospace;color:#667085">DROP RECEIPT — JPG / PNG / PDF<br>stored privately, referenced by expense record</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button onClick="{{ saveExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:14px 24px;font:600 14px Manrope,sans-serif;cursor:pointer">Save expense</button>
+            <button onClick="{{ goDash }}" style="background:transparent;color:#0F1720;border:1px solid #0F1720;padding:14px 24px;font:600 14px Manrope,sans-serif;cursor:pointer">Cancel</button>
+          </div>
+          <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#ECFDF3;border:1px solid #A9EFC5;padding:14px;font:400 13px/1.5 'IBM Plex Mono',monospace;color:#067647">Saved as {{ savedId }} — dashboard totals updated.</div>
+          </sc-if>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ FOUNDERS ============ -->
+    <sc-if value="{{ isFounders }}">
+      <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:24px">
+        <div>
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">COMPANY / FOUNDERS</div>
+          <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Founder management</h1>
+          <p style="margin:14px 0 0;max-width:64ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">Founders are documents in <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px">company/{companyId}/founders/{founderId}</span>. Add or deactivate one below and every total, filter and comparison recalculates — nothing in the dashboard assumes three.</p>
+        </div>
+        <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+          <div style="overflow-x:auto">
+            <div style="min-width:900px">
+              <div style="display:grid;grid-template-columns:1fr 200px 130px 130px 110px 100px 90px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+                <span>Founder</span><span>Email</span><span>Role</span><span>Joined</span><span>Ownership</span><span>Status</span><span></span>
+              </div>
+              <sc-for list="{{ founderRows }}" as="f" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:1fr 200px 130px 130px 110px 100px 90px;gap:16px;padding:14px 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
+                  <span style="display:flex;gap:12px;align-items:center">
+                    <span style="width:30px;height:30px;border-radius:50%;background:#EAECF0;display:grid;place-items:center;font:500 11px/1 'IBM Plex Mono',monospace;color:#667085">{{ f.initials }}</span>
+                    <span style="font-family:Manrope,sans-serif;font-size:14.5px;font-weight:500">{{ f.name }}</span>
+                  </span>
+                  <span style="color:#667085">{{ f.email }}</span>
+                  <span>{{ f.role }}</span>
+                  <span>{{ f.joined }}</span>
+                  <span>{{ f.ownership }}</span>
+                  <span><span style="background:{{ f.stBg }};color:{{ f.stFg }};padding:4px 10px;border-radius:999px;font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase">{{ f.status }}</span></span>
+                  <span style="display:flex;gap:10px;justify-content:flex-end">
+                    <span onClick="{{ f.toggle }}" style="cursor:pointer;color:#D81324;font-size:11px">{{ f.toggleLabel }}</span>
+                    <span onClick="{{ f.remove }}" style="cursor:pointer;color:#98A2B3;font-size:11px">DEL</span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;background:#F9FAFB;border-top:1px solid #EAECF0">
+            <input value="{{ afName }}" onChange="{{ onAfName }}" placeholder="Name" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:11px 12px;font:400 13.5px Manrope,sans-serif">
+            <input value="{{ afEmail }}" onChange="{{ onAfEmail }}" placeholder="Email" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:11px 12px;font:400 13.5px Manrope,sans-serif">
+            <input value="{{ afRole }}" onChange="{{ onAfRole }}" placeholder="Role" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:11px 12px;font:400 13.5px Manrope,sans-serif">
+            <button onClick="{{ addFounder }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:12px 18px;font:600 13px Manrope,sans-serif;cursor:pointer">Add founder</button>
+          </div>
+        </div>
+        <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Founder-wise spend · {{ periodLabel }}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+            <sc-for list="{{ byFounder }}" as="f" hint-placeholder-count="3">
+              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px">
+                <div style="font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#667085">{{ f.name }}</div>
+                <div style="margin-top:10px;font:700 24px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ f.amt }}</div>
+                <div style="margin-top:10px;height:6px;border-radius:999px;background:#EAECF0"><div style="height:6px;border-radius:999px;background:#0F1720;width:{{ f.pct }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ MY LEARNING ============ -->
+    <sc-if value="{{ isLearning }}">
+      <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:24px">
+        <div>
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">PC ACADEMY</div>
+          <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">My learning</h1>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ enrolledCourses }}" as="e" hint-placeholder-count="2">
+            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:24px;display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:24px;align-items:center">
+              <div role="img" aria-label="{{ e.title }}" style="width:120px;height:78px;border-radius:10px;background-color:#EDF0F4;background-image:url({{ e.img }});background-size:cover;background-position:center"></div>
+              <div style="display:flex;flex-direction:column;gap:9px;min-width:0">
+                <div style="font:600 18px/1.2 Manrope,sans-serif">{{ e.title }}</div>
+                <div style="font:400 11.5px/1 'IBM Plex Mono',monospace;color:#667085">{{ e.status }}</div>
+                <div style="height:6px;border-radius:999px;background:#EAECF0;max-width:420px"><div style="height:6px;border-radius:999px;background:#D81324;width:{{ e.pct }}"></div></div>
+              </div>
+              <button onClick="{{ e.open }}" style="background:{{ e.btnBg }};color:{{ e.btnFg }};border:1px solid #0F1720;padding:13px 20px;font:600 13px Manrope,sans-serif;cursor:pointer;white-space:nowrap">{{ e.cta }}</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:14px">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Certificates</div>
+          <sc-for list="{{ certificates }}" as="c" hint-placeholder-count="1">
+            <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;background:#F9FAFB;border:1px solid #E4E7EC;padding:16px 18px">
+              <span style="font:500 14.5px/1.3 Manrope,sans-serif">{{ c.title }}</span>
+              <span style="font:400 11.5px/1 'IBM Plex Mono',monospace;color:#667085">{{ c.id }} · {{ c.date }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ ADMIN ============ -->
+    <sc-if value="{{ isAdmin }}">
+      <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:24px">
+        <div>
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">ADMIN CONSOLE</div>
+          <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Platform management</h1>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+          <sc-for list="{{ adminTiles }}" as="t" hint-placeholder-count="8">
+            <div onClick="{{ t.open }}" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px;cursor:pointer;display:flex;flex-direction:column;gap:8px" style-hover="background:#F9FAFB">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ t.k }}</div>
+              <div style="font:700 26px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ t.v }}</div>
+              <div style="font:400 12px/1.4 Manrope,sans-serif;color:#667085">{{ t.sub }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+          <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Recent enquiries</div>
+          <div style="overflow-x:auto">
+            <div style="min-width:760px">
+              <sc-for list="{{ enquiries }}" as="q" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:110px 1fr 160px 140px 110px;gap:16px;padding:14px 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
+                  <span style="color:#98A2B3">{{ q.id }}</span>
+                  <span style="font-family:Manrope,sans-serif;font-size:14px">{{ q.subject }}</span>
+                  <span>{{ q.type }}</span>
+                  <span style="color:#667085">{{ q.who }}</span>
+                  <span style="text-align:right;color:#98A2B3">{{ q.date }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+  </main>
+
+  <footer style="background:#0F1720;color:#98A2B3;border-top:1px solid #0F1720">
+    <div style="max-width:1320px;margin:0 auto;padding:40px 24px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font:400 11.5px/1.7 'IBM Plex Mono',monospace;letter-spacing:.06em">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <img src="./pc-logo.png" alt="Protocore System" style="height: 48px; width: 188px; display: block; background: #FFFFFF; border-radius: 6px; padding: 6px 10px; object-fit: cover">
+        <div>PROTOCORE SYSTEMS PVT. LTD.<br>PUNE · MAHARASHTRA · INDIA</div>
+      </div>
+      <div>SALES@PROTOCORESYSTEMS.IN<br>+91 20 4860 1122</div>
+      <div style="color:#667085">PC PLATFORM · PROTOTYPE<br>DATA SHOWN IS ILLUSTRATIVE</div>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tableDensity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;default&quot;:&quot;comfortable&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Dashboard&quot;}}">
+class Component extends DCLogic {
+  products = [
+    { id: 'starter-panels', slug: 'starter-panels', name: 'Starter Panels', category: 'Power Control', blurb: 'DOL, star-delta and soft-starter panels for motors up to 400 kW.', desc: 'Fabricated from CRCA sheet with powder-coated finish, our starter panels are built around branded switchgear and sized to the motor schedule you supply. Every unit is routine-tested for insulation resistance, phase sequence and protection pickup before dispatch.', features: ['DOL, star-delta, soft-start and autotransformer variants', 'Branded MCCB and contactor sets', 'Motor protection relay with phase-failure detection', 'Ammeter, voltmeter and selector switch', 'IP54 as standard, IP65 on request'], apps: ['Pumping stations', 'Compressor rooms', 'Material handling', 'Textile and process plants'], specs: [ { k: 'Rating', v: 'up to 630 A' }, { k: 'Voltage', v: '415 V ± 10%, 3-phase' }, { k: 'Frequency', v: '50 Hz' }, { k: 'Enclosure', v: 'CRCA 1.6/2.0 mm' }, { k: 'Protection', v: 'IP54 / IP65' }, { k: 'Standard', v: 'IS 8623 / IEC 61439' } ], docs: [ { name: 'starter-panel-datasheet.pdf', size: '1.2 MB' }, { name: 'wiring-schematic-rev4.pdf', size: '840 KB' } ] },
+    { id: 'hvac-panels', slug: 'hvac-panels', name: 'HVAC Panels', category: 'Building Systems', blurb: 'AHU, chiller and ventilation control panels with BMS interface.', desc: 'HVAC panels combining power distribution with VFD-driven fan and pump control, temperature and pressure loops, and Modbus or BACnet interface to the building management system. Supplied with commissioning support.', features: ['VFD-driven AHU and fan control', 'Temperature and static pressure loops', 'Modbus RTU / BACnet gateway', 'Fire alarm interlock', 'Duty-standby changeover'], apps: ['Commercial buildings', 'Hospitals and labs', 'Data centre cooling', 'Hotels and malls'], specs: [ { k: 'Rating', v: 'up to 400 A' }, { k: 'Control', v: 'PLC + HMI 7"' }, { k: 'Drives', v: '0.75 – 132 kW' }, { k: 'Protocols', v: 'Modbus, BACnet/IP' }, { k: 'Enclosure', v: 'CRCA, IP54' }, { k: 'Standard', v: 'IEC 61439-2' } ], docs: [ { name: 'hvac-panel-datasheet.pdf', size: '1.6 MB' }, { name: 'bms-point-list.xlsx', size: '210 KB' } ] },
+    { id: 'www-panels', slug: 'www-panels', name: 'WWW Panels', category: 'Water Infrastructure', blurb: 'Water and waste-water panels for treatment plants and networks.', desc: 'Panels for raw water intake, treatment trains and sewage pumping, including level-based sequencing, dry-run protection and flow totalising. Built for wet, corrosive environments.', features: ['Level-based pump sequencing', 'Dry-run and over-pressure protection', 'Flow totaliser and dosing interlocks', 'Stainless or FRP enclosure options', 'SCADA-ready I/O'], apps: ['WTP and STP plants', 'Municipal networks', 'Industrial effluent', 'Booster stations'], specs: [ { k: 'Rating', v: 'up to 800 A' }, { k: 'Enclosure', v: 'SS 304 / FRP' }, { k: 'Protection', v: 'IP65 / IP66' }, { k: 'Control', v: 'PLC with redundant I/O' }, { k: 'Instruments', v: 'Level, flow, pressure' }, { k: 'Standard', v: 'IEC 61439 / CPHEEO' } ], docs: [ { name: 'www-panel-datasheet.pdf', size: '1.4 MB' } ] },
+    { id: 'booster-panels', slug: 'booster-panels', name: 'Booster Panels', category: 'Water Infrastructure', blurb: 'Pressure-boosting control with VFD and cascade logic.', desc: 'Hydro-pneumatic booster control maintaining set-point pressure across duty, assist and standby pumps, with automatic rotation to equalise running hours.', features: ['PID pressure control on VFD', 'Cascade duty/assist/standby logic', 'Automatic pump rotation', 'Tank level interlock', 'Run-hour and fault logging'], apps: ['Residential towers', 'Hotels', 'Campuses', 'Firefighting jockey sets'], specs: [ { k: 'Rating', v: 'up to 250 A' }, { k: 'Drives', v: '2.2 – 55 kW' }, { k: 'Set-point', v: '1 – 10 bar' }, { k: 'Sensors', v: '4–20 mA transmitter' }, { k: 'Enclosure', v: 'CRCA, IP54' }, { k: 'Standard', v: 'IEC 61439-2' } ], docs: [ { name: 'booster-panel-datasheet.pdf', size: '980 KB' } ] },
+    { id: 'fire-hydrant-panels', slug: 'fire-hydrant-panels', name: 'Fire Hydrant Panels', category: 'Life Safety', blurb: 'Jockey, main and diesel pump control to fire-authority norms.', desc: 'Fire pump controllers for jockey, electric main and diesel engine sets, wired for automatic start on pressure drop and manual override, with documentation prepared for fire-authority approval.', features: ['Jockey / main / diesel sequencing', 'Auto start on pressure drop', 'Manual override and test mode', 'Battery charger for diesel set', 'Annunciation panel output'], apps: ['High-rise buildings', 'Warehouses', 'Industrial plants', 'Public infrastructure'], specs: [ { k: 'Rating', v: 'up to 400 A' }, { k: 'Starting', v: 'DOL / star-delta' }, { k: 'Pressure switch', v: '3 nos, adjustable' }, { k: 'Annunciation', v: '8-window facia' }, { k: 'Enclosure', v: 'CRCA, IP54, red' }, { k: 'Standard', v: 'IS 15105 / NBC' } ], docs: [ { name: 'fire-panel-datasheet.pdf', size: '1.1 MB' }, { name: 'authority-approval-pack.pdf', size: '2.4 MB' } ] },
+    { id: 'automation-panels', slug: 'automation-panels', name: 'Automation / Control Panels', category: 'Automation', blurb: 'PLC and HMI panels engineered to the process description.', desc: 'Custom automation panels built from your P&ID and control philosophy, with PLC programming, HMI screens and SCADA tags delivered as part of the scope.', features: ['PLC selection to I/O count', 'HMI screen development', 'SCADA tag database', 'Remote I/O over Ethernet', 'Source code handover'], apps: ['Process plants', 'OEM machine builders', 'Packaging lines', 'Utilities'], specs: [ { k: 'PLC', v: 'Siemens / Delta / Mitsubishi' }, { k: 'I/O', v: '16 – 512 points' }, { k: 'HMI', v: '4" – 15" touch' }, { k: 'Network', v: 'Profinet, Modbus TCP' }, { k: 'Enclosure', v: 'CRCA, IP55' }, { k: 'Standard', v: 'IEC 61131' } ], docs: [ { name: 'automation-capability.pdf', size: '2.0 MB' } ] },
+    { id: 'rms-iot', slug: 'rms-iot', name: 'RMS / IoT Solutions', category: 'Automation', blurb: 'Remote monitoring for panels already in the field.', desc: 'A retrofit edge gateway and dashboard that reports pump status, energy consumption and fault history from installed panels over 4G, with SMS and email alerts.', features: ['4G edge gateway, retrofit wiring', 'Energy and run-hour dashboards', 'Fault history and alerts', 'Multi-site view', 'Open API for integration'], apps: ['Distributed pumping networks', 'Multi-site facilities', 'AMC and service contracts', 'Energy audits'], specs: [ { k: 'Connectivity', v: '4G LTE / Ethernet' }, { k: 'Inputs', v: '16 DI, 8 AI, Modbus' }, { k: 'Logging', v: '1 s – 15 min' }, { k: 'Dashboard', v: 'Web, mobile-friendly' }, { k: 'Alerts', v: 'SMS, email, webhook' }, { k: 'Power', v: '24 V DC' } ], docs: [ { name: 'rms-overview.pdf', size: '1.3 MB' } ] }
+  ];
+
+  courses = [
+    { id: 'c1', title: 'LT Control Panel Design from Scratch', level: 'Beginner', instructor: 'S. Kulkarni', duration: '14 h 20 m', rating: '4.8', enrolled: '1,284', price: 4999, mrp: 7999, blurb: 'Load lists, switchgear selection, busbar sizing and enclosure layout, worked end to end on a real panel.', desc: 'Start from a customer load list and finish with a fabrication-ready panel drawing. The course works through switchgear selection, short-circuit and busbar calculations, cable sizing, GA and schematic drafting, and the routine tests a panel must pass before dispatch.', learn: ['Read a load list and build a panel schedule', 'Select MCCBs, contactors and relays with discrimination', 'Size busbars and cables to IS/IEC', 'Draw GA and schematics that a shop can build from', 'Run routine tests and document them'], reqs: ['Basic electrical engineering background', 'AutoCAD or equivalent drafting tool', 'No prior panel-building experience needed'], sections: [ { title: 'Foundations', meta: '5 LESSONS · 2 h 10 m', lessons: [ { title: 'How a panel is specified', tag: 'PREVIEW', len: '12:04' }, { title: 'Reading the load list', tag: '', len: '18:40' }, { title: 'Switchgear families', tag: '', len: '24:12' } ] }, { title: 'Calculations', meta: '7 LESSONS · 4 h 05 m', lessons: [ { title: 'Short-circuit calculation', tag: '', len: '31:22' }, { title: 'Busbar sizing worked example', tag: 'PREVIEW', len: '27:50' }, { title: 'Cable and earthing sizing', tag: '', len: '22:18' } ] }, { title: 'Drawings and testing', meta: '6 LESSONS · 3 h 40 m', lessons: [ { title: 'GA drawing conventions', tag: '', len: '29:10' }, { title: 'Schematic drafting', tag: '', len: '34:44' }, { title: 'Routine test protocol', tag: '', len: '21:05' } ] } ], reviews: [ { stars: '5', who: 'Amit R., design engineer', text: 'The busbar and short-circuit sections alone were worth it. Notation matches what we actually use on drawings.' }, { stars: '4', who: 'Priya N., EPC contractor', text: 'Clear and practical. Would have liked more on export projects, but the fundamentals are well covered.' } ] },
+    { id: 'c2', title: 'VFD and Soft Starter Commissioning', level: 'Intermediate', instructor: 'R. Deshmukh', duration: '9 h 45 m', rating: '4.7', enrolled: '812', price: 3999, mrp: 5999, blurb: 'Parameter sets, PID loops, harmonics and fault diagnosis on live drive panels.', desc: 'A commissioning-focused course covering drive selection, parameter groups, PID pressure and flow loops, harmonic mitigation and systematic fault diagnosis, filmed on working panels.', learn: ['Set up a drive from nameplate to running', 'Tune PID loops for pressure and flow', 'Diagnose trips from fault codes and waveforms', 'Assess and mitigate harmonics'], reqs: ['Familiarity with motor starters', 'Access to a VFD is helpful but not required'], sections: [ { title: 'Drive basics', meta: '4 LESSONS · 1 h 50 m', lessons: [ { title: 'Drive topology and ratings', tag: 'PREVIEW', len: '15:30' }, { title: 'Parameter groups explained', tag: '', len: '26:15' } ] }, { title: 'Commissioning', meta: '6 LESSONS · 4 h 10 m', lessons: [ { title: 'First start checklist', tag: '', len: '19:48' }, { title: 'PID tuning on a booster set', tag: '', len: '38:02' }, { title: 'Fault code walkthrough', tag: '', len: '33:27' } ] } ], reviews: [ { stars: '5', who: 'Vikram S., service engineer', text: 'The fault-code walkthrough is the closest thing to shadowing a senior commissioning engineer.' } ] },
+    { id: 'c3', title: 'PLC Programming for Pump Automation', level: 'Intermediate', instructor: 'S. Kulkarni', duration: '16 h 05 m', rating: '4.9', enrolled: '1,043', price: 6499, mrp: 9999, blurb: 'Ladder logic, sequencing, alarm handling and HMI design for water systems.', desc: 'Build a complete pump-station program: level-based sequencing, duty rotation, dry-run protection, alarm handling with first-out annunciation, and an HMI that an operator can actually use.', learn: ['Structure a program into readable routines', 'Write duty/standby sequencing and rotation', 'Handle alarms and first-out annunciation', 'Design operator screens that reduce errors'], reqs: ['Basic ladder logic familiarity', 'Vendor software installed (trial is fine)'], sections: [ { title: 'Program structure', meta: '5 LESSONS · 3 h 20 m', lessons: [ { title: 'From control philosophy to routines', tag: 'PREVIEW', len: '22:40' }, { title: 'Naming and tag discipline', tag: '', len: '17:12' } ] }, { title: 'Pump logic', meta: '8 LESSONS · 6 h 15 m', lessons: [ { title: 'Level sequencing', tag: '', len: '41:30' }, { title: 'Duty rotation and run hours', tag: '', len: '28:55' }, { title: 'Dry-run and fault handling', tag: '', len: '35:18' } ] } ], reviews: [ { stars: '5', who: 'Kiran M., automation lead', text: 'Tag discipline and first-out alarms are rarely taught. This course does both properly.' } ] },
+    { id: 'c4', title: 'IoT Remote Monitoring for Panels', level: 'Advanced', instructor: 'A. Fernandes', duration: '7 h 30 m', rating: '4.6', enrolled: '496', price: 3499, mrp: 5499, blurb: 'Edge gateways, Modbus mapping, dashboards and alerting for installed panels.', desc: 'Retrofit monitoring onto panels already in service: gateway wiring, Modbus register mapping, data models, dashboard design and an alerting scheme that does not cry wolf.', learn: ['Wire and configure an edge gateway', 'Map Modbus registers to a clean data model', 'Design dashboards operators trust', 'Build alert rules with sensible thresholds'], reqs: ['Comfort with panel wiring', 'Basic networking knowledge'], sections: [ { title: 'Edge', meta: '4 LESSONS · 2 h 40 m', lessons: [ { title: 'Gateway selection', tag: 'PREVIEW', len: '16:22' }, { title: 'Modbus register mapping', tag: '', len: '30:04' } ] }, { title: 'Cloud and alerts', meta: '5 LESSONS · 3 h 05 m', lessons: [ { title: 'Data model design', tag: '', len: '24:48' }, { title: 'Alert rules and escalation', tag: '', len: '27:36' } ] } ], reviews: [ { stars: '5', who: 'Nikhil T., AMC manager', text: 'We shipped a monitoring retrofit to two sites using exactly this approach.' } ] }
+  ];
+
+  state = {
+    route: 'home', pid: 'starter-panels', cid: 'c1',
+    role: null, email: null,
+    prodFilter: 'All', q: '', level: 'All',
+    fFounder: 'All founders', fCategory: 'All categories', fStatus: 'All statuses',
+    loginRole: 'FOUNDER',
+    fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
+    nFounder: 'Sandeep Kulkarni', nDate: '2026-09-12', nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '', saved: false, savedId: '',
+    afName: '', afEmail: '', afRole: '',
+    enrolled: ['c1', 'c2'], progress: { c1: 42, c2: 100 },
+    founders: [
+      { id: 'f1', name: 'Sandeep Kulkarni', email: 'sandeep@protocore.in', role: 'Engineering', joined: '2016-04-01', ownership: '40%', active: true },
+      { id: 'f2', name: 'Rohit Deshmukh', email: 'rohit@protocore.in', role: 'Operations', joined: '2016-04-01', ownership: '35%', active: true },
+      { id: 'f3', name: 'Anita Fernandes', email: 'anita@protocore.in', role: 'Commercial', joined: '2018-07-15', ownership: '25%', active: true }
+    ],
+    categories: ['Travel', 'Food', 'Office', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Miscellaneous'],
+    expenses: [
+      { id: 'EXP-0412', fid: 'f1', date: '2026-09-11', amount: 8450, category: 'Travel', desc: 'Site visit — Hinjewadi pump room', method: 'UPI', status: 'Submitted' },
+      { id: 'EXP-0411', fid: 'f3', date: '2026-09-10', amount: 12600, category: 'Marketing', desc: 'Trade expo booth deposit', method: 'Bank transfer', status: 'Approved' },
+      { id: 'EXP-0410', fid: 'f2', date: '2026-09-09', amount: 3180, category: 'Logistics', desc: 'Panel freight to Nashik site', method: 'Cash', status: 'Reimbursed' },
+      { id: 'EXP-0409', fid: 'f1', date: '2026-09-08', amount: 2400, category: 'Client Meeting', desc: 'Lunch with EPC consultant', method: 'Card', status: 'Approved' },
+      { id: 'EXP-0408', fid: 'f2', date: '2026-09-05', amount: 21500, category: 'Equipment', desc: 'Insulation tester calibration', method: 'Bank transfer', status: 'Approved' },
+      { id: 'EXP-0407', fid: 'f3', date: '2026-09-04', amount: 5900, category: 'Software', desc: 'CAD seat renewal, quarterly', method: 'Card', status: 'Reimbursed' },
+      { id: 'EXP-0406', fid: 'f1', date: '2026-09-02', amount: 1650, category: 'Internet', desc: 'Workshop broadband', method: 'Auto-debit', status: 'Reimbursed' },
+      { id: 'EXP-0405', fid: 'f2', date: '2026-08-29', amount: 9300, category: 'Office', desc: 'Drawing table and racks', method: 'Bank transfer', status: 'Approved' },
+      { id: 'EXP-0404', fid: 'f3', date: '2026-08-27', amount: 4200, category: 'Travel', desc: 'Mumbai client visit, rail', method: 'UPI', status: 'Rejected' },
+      { id: 'EXP-0403', fid: 'f1', date: '2026-08-22', amount: 15750, category: 'Equipment', desc: 'Crimping tool set', method: 'Card', status: 'Approved' },
+      { id: 'EXP-0402', fid: 'f2', date: '2026-08-18', amount: 6800, category: 'Utilities', desc: 'Workshop power bill', method: 'Auto-debit', status: 'Reimbursed' },
+      { id: 'EXP-0401', fid: 'f3', date: '2026-08-14', amount: 2750, category: 'Food', desc: 'Shop floor team lunch', method: 'Cash', status: 'Draft' }
+    ],
+    enquiries: [
+      { id: 'ENQ-0231', subject: 'Quotation for 6 HVAC panels', type: 'Product Enquiry', who: 'Larsen Projects', date: '2026-09-11' },
+      { id: 'ENQ-0230', subject: 'Bulk licence for PLC course', type: 'Course Enquiry', who: 'Aqua Utilities', date: '2026-09-10' },
+      { id: 'ENQ-0229', subject: 'Channel partnership, Gujarat', type: 'Partnership', who: 'Shreeji Electricals', date: '2026-09-08' },
+      { id: 'ENQ-0228', subject: 'RMS gateway offline at site 4', type: 'Support', who: 'Pune Municipal', date: '2026-09-06' }
+    ]
+  };
+
+  imgs = {
+    'starter-panels': './main-image.png',
+    'hvac-panels': 'https://images.unsplash.com/photo-1759646827242-cf09e30709aa?fm=jpg&q=70&w=1600&auto=format&fit=crop',
+    'www-panels': 'https://images.unsplash.com/photo-1533077162801-86490c593afb?fm=jpg&q=70&w=1600&auto=format&fit=crop',
+    'booster-panels': './open-panel-1.jpeg',
+    'fire-hydrant-panels': './fire-panel.png',
+    'automation-panels': './all-in-1.jpeg',
+    'rms-iot': 'https://images.unsplash.com/photo-1676630656246-3047520adfdf?fm=jpg&q=70&w=1600&auto=format&fit=crop',
+    c1: './all-in-1.jpeg', c2: './open-panel-1.jpeg',
+    c3: './closed-panel-2.jpeg', c4: './main-image.png'
+  };
+  monthlyRevenue = { '2026-04': 68400, '2026-05': 74900, '2026-06': 61200, '2026-07': 88500, '2026-08': 79600, '2026-09': 52300 };
+
+  componentDidMount() {
+    import('./finance-auth.js')
+      .then(m => { this.financeAuth = m; })
+      .catch(() => { this.financeAuth = null; });
+  }
+
+  img(id) { return this.imgs[id] || './main-image.png'; }
+  inr(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+  set(k, v) { this.setState({ [k]: v }); }
+  onInput(k) { return (e) => this.setState({ [k]: e.target.value, sent: false, saved: false }); }
+  nav(route, extra) { return () => this.setState(Object.assign({ route: route }, extra || {})); }
+
+  statusColors(s) {
+    const m = {
+      Draft: ['#EAECF0', '#667085'], Submitted: ['#FEF0C7', '#93601A'],
+      Approved: ['#DCFAE6', '#067647'], Rejected: ['#FEE4E2', '#912018'], Reimbursed: ['#E0EAFF', '#3538CD']
+    };
+    return m[s] || m.Draft;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const founders = s.founders;
+    const fmap = {};
+    founders.forEach(f => { fmap[f.id] = f; });
+    const active = founders.filter(f => f.active);
+    const product = this.products.find(p => p.id === s.pid) || this.products[0];
+    const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
+    const total = s.expenses.reduce((a, e) => a + e.amount, 0);
+    const month = s.expenses.filter(e => e.date.slice(0, 7) === '2026-09').reduce((a, e) => a + e.amount, 0);
+    const year = s.expenses.filter(e => e.date.slice(0, 4) === '2026').reduce((a, e) => a + e.amount, 0);
+    const pending = s.expenses.filter(e => e.status === 'Submitted').reduce((a, e) => a + e.amount, 0);
+
+    const fTotals = founders.map(f => {
+      const es = s.expenses.filter(e => e.fid === f.id);
+      return { id: f.id, name: f.name, sum: es.reduce((a, e) => a + e.amount, 0), count: es.length };
+    }).sort((a, b) => b.sum - a.sum);
+    const fMax = Math.max(1, ...fTotals.map(f => f.sum));
+
+    const catTotals = {};
+    s.expenses.forEach(e => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
+    const cats = Object.keys(catTotals).map(k => ({ name: k, sum: catTotals[k] })).sort((a, b) => b.sum - a.sum).slice(0, 7);
+    const cMax = Math.max(1, ...cats.map(c => c.sum));
+
+    const ledgerRaw = s.expenses.filter(e =>
+      (s.fFounder === 'All founders' || (fmap[e.fid] && fmap[e.fid].name === s.fFounder)) &&
+      (s.fCategory === 'All categories' || e.category === s.fCategory) &&
+      (s.fStatus === 'All statuses' || e.status === s.fStatus));
+
+    const chip = (label, on, pick) => ({ label, pick, bg: on ? '#0F1720' : 'transparent', fg: on ? '#F7F8FA' : '#0F1720', bd: on ? '#0F1720' : '#E4E7EC' });
+    const prodCats = ['All'].concat(this.products.map(p => p.category).filter((c, i, a) => a.indexOf(c) === i));
+    const q = s.q.trim().toLowerCase();
+
+    const appNavDefs = [
+      { label: 'Dashboard', route: 'dash' }, { label: 'Expenses', route: 'add' },
+      { label: 'Founders', route: 'founders' }, { label: 'My Learning', route: 'learning' },
+      { label: 'Admin', route: 'admin' }
+    ].filter(n => {
+      if (s.role === 'ADMIN') return true;
+      if (s.role === 'STUDENT') return n.route === 'learning';
+      return n.route !== 'admin' && n.route !== 'learning';
+    });
+
+    return {
+      isHome: s.route === 'home', isProducts: s.route === 'products', isProduct: s.route === 'product',
+      isCourses: s.route === 'courses', isCourse: s.route === 'course', isContact: s.route === 'contact',
+      isLogin: s.route === 'login', isDash: s.route === 'dash', isAdd: s.route === 'add',
+      isFounders: s.route === 'founders', isLearning: s.route === 'learning', isAdmin: s.route === 'admin',
+      loggedIn: !!s.role, loggedOut: !s.role, roleLabel: s.role, userEmail: s.email,
+      goHome: this.nav('home'), goProducts: this.nav('products'), goCourses: this.nav('courses'),
+      goContact: this.nav('contact'), goLogin: this.nav('login'), goDash: this.nav('dash'),
+      isFinance: s.route === 'finance',
+      goFinance: this.nav('finance'),
+      financeLocked: !s.fiUserOk, financeOpen: !!s.fiUserOk, fiWho: s.fiUserOk,
+      fiUser: s.fiUser || '', fiPass: s.fiPass || '', fiError: s.fiError || '',
+      onFiUser: this.onInput('fiUser'), onFiPass: this.onInput('fiPass'),
+      financeLogin: () => {
+        const mod = this.financeAuth;
+        if (!mod) { this.setState({ fiError: 'Auth module not loaded — check finance-auth.js.' }); return; }
+        mod.authenticate(s.fiUser, s.fiPass).then(r => {
+          if (r.ok) { this.setState({ fiUserOk: r.user.displayName + ' · ' + r.user.role, fiPass: '', fiError: '' }); }
+          else { this.setState({ fiError: r.error || 'Sign in failed.' }); }
+        });
+      },
+      financeLogout: () => this.setState({ fiUserOk: null, fiUser: '', fiPass: '', fiError: '' }),
+      financeKpis: (() => {
+        const rev = Object.keys(this.monthlyRevenue).reduce((a, k) => a + this.monthlyRevenue[k], 0);
+        const net = rev - total;
+        return [
+          { k: 'Course revenue', v: this.inr(rev), sub: 'LAST 6 MONTHS', color: '#0F1720' },
+          { k: 'Company expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES', color: '#0F1720' },
+          { k: 'Net position', v: this.inr(net), sub: net >= 0 ? 'SURPLUS' : 'DEFICIT', color: net >= 0 ? '#067647' : '#912018' },
+          { k: 'Awaiting approval', v: this.inr(pending), sub: 'NOT YET REIMBURSED', color: '#0F1720' }
+        ];
+      })(),
+      financeRows: Object.keys(this.monthlyRevenue).sort().reverse().map(k => {
+        const rv = this.monthlyRevenue[k];
+        const ex = s.expenses.filter(e => e.date.slice(0, 7) === k).reduce((a, e) => a + e.amount, 0);
+        const n = rv - ex;
+        return {
+          month: k, rev: this.inr(rv), exp: this.inr(ex),
+          net: (n < 0 ? '−' : '') + this.inr(Math.abs(n)).replace('₹', '₹'),
+          netColor: n >= 0 ? '#067647' : '#912018'
+        };
+      }),
+      goAddExpense: this.nav('add'), goFounders: this.nav('founders'), goLearning: this.nav('learning'),
+      logout: () => this.setState({ role: null, email: null, route: 'home' }),
+      appNav: appNavDefs.map(n => ({
+        label: n.label, open: this.nav(n.route === 'add' ? 'add' : n.route),
+        bg: s.route === n.route ? '#F7F8FA' : 'transparent', fg: s.route === n.route ? '#0F1720' : '#B7BECD'
+      })),
+
+      stats: [{ k: 'Panels delivered', v: '2,400+' }, { k: 'Years building', v: '10' }, { k: 'Active sites monitored', v: '58' }, { k: 'Engineers trained', v: '3,600' }],
+      productCount: this.products.length,
+      homeProducts: this.products.slice(0, 6).map(p => ({ img: this.img(p.id), slug: p.slug, name: p.name, category: p.category, blurb: p.blurb, open: this.nav('product', { pid: p.id }) })),
+      homeCourses: this.courses.slice(0, 3).map(c => ({ title: c.title, meta: c.instructor.toUpperCase() + ' · ' + c.duration.toUpperCase() + ' · ' + c.level.toUpperCase(), priceFmt: this.inr(c.price), open: this.nav('course', { cid: c.id }) })),
+      categoryChips: prodCats.map(c => chip(c, s.prodFilter === c, () => this.set('prodFilter', c))),
+      filteredProducts: this.products.filter(p => s.prodFilter === 'All' || p.category === s.prodFilter)
+        .map(p => ({ img: this.img(p.id), slug: p.slug, name: p.name, category: p.category, blurb: p.blurb, open: this.nav('product', { pid: p.id }) })),
+      product: Object.assign({}, product, { img: this.img(product.id) }),
+      enquireProduct: () => this.setState({ route: 'contact', fType: 'Product Enquiry', fSubject: 'Enquiry — ' + product.name, sent: false }),
+
+      q: s.q, onSearch: this.onInput('q'),
+      levelChips: ['All', 'Beginner', 'Intermediate', 'Advanced'].map(l => chip(l, s.level === l, () => this.set('level', l))),
+      filteredCourses: this.courses.filter(c => (s.level === 'All' || c.level === s.level) &&
+        (!q || (c.title + c.instructor + c.blurb + c.level).toLowerCase().indexOf(q) >= 0))
+        .map(c => ({
+          img: this.img(c.id), title: c.title, level: c.level, blurb: c.blurb, instructor: c.instructor, duration: c.duration,
+          rating: c.rating, enrolled: c.enrolled, priceFmt: this.inr(c.price), mrpFmt: this.inr(c.mrp),
+          open: this.nav('course', { cid: c.id })
+        })),
+      course: Object.assign({}, course, {
+        img: this.img(course.id), priceFmt: this.inr(course.price), mrpFmt: this.inr(course.mrp),
+        off: Math.round((1 - course.price / course.mrp) * 100) + '% OFF',
+        lessonCount: course.sections.reduce((a, x) => a + x.lessons.length, 0),
+        sections: course.sections.map(x => ({
+          title: x.title, meta: x.meta,
+          lessons: x.lessons.map(l => ({ title: l.title, len: l.len, tag: l.tag, tagColor: l.tag ? '#D81324' : '#98A2B3' }))
+        }))
+      }),
+      courseOwned: s.enrolled.indexOf(s.cid) >= 0,
+      courseNotOwned: s.enrolled.indexOf(s.cid) < 0,
+      buyCourse: () => this.setState({
+        role: s.role || 'STUDENT', email: s.email || 'student@example.com',
+        enrolled: s.enrolled.concat([s.cid]),
+        progress: Object.assign({}, s.progress, { [s.cid]: 0 }), route: 'learning'
+      }),
+
+      contactInfo: [
+        { k: 'Company', v: 'Protocore Systems Pvt. Ltd.' },
+        { k: 'Email', v: 'sales@protocoresystems.in' },
+        { k: 'Phone', v: '+91 20 4860 1122' },
+        { k: 'Address', v: 'Plot 14, MIDC Bhosari, Pune 411026, Maharashtra, India' },
+        { k: 'Hours', v: 'Mon–Sat, 09:30 – 18:30 IST' }
+      ],
+      enquiryTypes: ['Product Enquiry', 'Course Enquiry', 'Partnership', 'Support', 'General'],
+      fName: s.fName, fEmail: s.fEmail, fPhone: s.fPhone, fSubject: s.fSubject, fType: s.fType, fMsg: s.fMsg,
+      onFName: this.onInput('fName'), onFEmail: this.onInput('fEmail'), onFPhone: this.onInput('fPhone'),
+      onFSubject: this.onInput('fSubject'), onFType: this.onInput('fType'), onFMsg: this.onInput('fMsg'),
+      sent: s.sent, enquiryId: s.enquiryId,
+      sendEnquiry: () => this.setState({ sent: true, enquiryId: 'ENQ-0' + (232 + Math.floor(Math.random() * 9)) }),
+
+      lEmail: s.email || '', lPass: '', onLEmail: this.onInput('email'), onLPass: () => {},
+      roleChips: ['ADMIN', 'FOUNDER', 'EMPLOYEE', 'STUDENT'].map(r => chip(r, s.loginRole === r, () => this.set('loginRole', r))),
+      roleDocs: [
+        { k: 'ADMIN', v: 'Full platform: products, courses, founders, expenses, users, enquiries, orders.' },
+        { k: 'FOUNDER', v: 'Company expense management, founder-wise spend, approvals.' },
+        { k: 'EMPLOYEE', v: 'Own expenses only — record, submit, track reimbursement.' },
+        { k: 'STUDENT', v: 'Purchased courses and My Learning.' }
+      ],
+      doLogin: () => this.setState({
+        role: s.loginRole,
+        email: s.email || (s.loginRole.toLowerCase() + '@protocore.in'),
+        route: s.loginRole === 'STUDENT' ? 'learning' : 'dash'
+      }),
+
+      kpis: [
+        { k: 'Total expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES' },
+        { k: 'September 2026', v: this.inr(month), sub: 'CURRENT MONTH' },
+        { k: 'FY 2026', v: this.inr(year), sub: 'CURRENT YEAR' },
+        { k: 'Awaiting approval', v: this.inr(pending), sub: s.expenses.filter(e => e.status === 'Submitted').length + ' SUBMITTED' }
+      ],
+      founderCount: active.length, periodLabel: 'ALL TIME',
+      byFounder: fTotals.map(f => ({
+        name: f.name, amt: this.inr(f.sum), count: f.count,
+        pct: (f.sum / fMax * 100).toFixed(1) + '%',
+        share: total ? Math.round(f.sum / total * 100) + '%' : '0%'
+      })),
+      byCategory: cats.map(c => ({ name: c.name, amt: this.inr(c.sum), pct: (c.sum / cMax * 100).toFixed(1) + '%' })),
+      fFounder: s.fFounder, fCategory: s.fCategory, fStatus: s.fStatus,
+      onFilterFounder: this.onInput('fFounder'), onFilterCategory: this.onInput('fCategory'), onFilterStatus: this.onInput('fStatus'),
+      founderOptions: ['All founders'].concat(founders.map(f => f.name)),
+      categoryOptions: ['All categories'].concat(s.categories),
+      statusOptions: ['All statuses', 'Draft', 'Submitted', 'Approved', 'Rejected', 'Reimbursed'],
+      rowPad: this.props.tableDensity === 'compact' ? '9px' : '14px',
+      ledger: ledgerRaw.map(e => {
+        const c = this.statusColors(e.status);
+        return { id: e.id, date: e.date, desc: e.desc, category: e.category, status: e.status, amt: this.inr(e.amount), statusBg: c[0], statusFg: c[1], founder: fmap[e.fid] ? fmap[e.fid].name.split(' ')[0] : '—' };
+      }),
+      ledgerCount: ledgerRaw.length,
+      ledgerTotal: this.inr(ledgerRaw.reduce((a, e) => a + e.amount, 0)),
+
+      activeFounderNames: active.map(f => f.name),
+      categories: s.categories, methods: ['UPI', 'Card', 'Cash', 'Bank transfer', 'Auto-debit'],
+      statuses: ['Draft', 'Submitted', 'Approved', 'Rejected', 'Reimbursed'],
+      nFounder: s.nFounder, nDate: s.nDate, nAmount: s.nAmount, nCategory: s.nCategory,
+      nMethod: s.nMethod, nStatus: s.nStatus, nDesc: s.nDesc, saved: s.saved, savedId: s.savedId,
+      onNFounder: this.onInput('nFounder'), onNDate: this.onInput('nDate'), onNAmount: this.onInput('nAmount'),
+      onNCategory: this.onInput('nCategory'), onNMethod: this.onInput('nMethod'), onNStatus: this.onInput('nStatus'),
+      onNDesc: this.onInput('nDesc'),
+      saveExpense: () => {
+        const amt = parseFloat(String(s.nAmount).replace(/[^0-9.]/g, '')) || 0;
+        if (!amt) { return; }
+        const f = founders.find(x => x.name === s.nFounder) || active[0];
+        const id = 'EXP-0' + (413 + s.expenses.length - 12);
+        this.setState({
+          expenses: [{ id: id, fid: f ? f.id : 'f1', date: s.nDate, amount: amt, category: s.nCategory, desc: s.nDesc || 'Untitled expense', method: s.nMethod, status: s.nStatus }].concat(s.expenses),
+          saved: true, savedId: id, nAmount: '', nDesc: ''
+        });
+      },
+
+      founderRows: founders.map(f => ({
+        name: f.name, email: f.email, role: f.role, joined: f.joined, ownership: f.ownership,
+        initials: f.name.split(' ').map(x => x[0]).join(''),
+        status: f.active ? 'Active' : 'Inactive',
+        stBg: f.active ? '#DCFAE6' : '#EAECF0', stFg: f.active ? '#067647' : '#667085',
+        toggleLabel: f.active ? 'DEACTIVATE' : 'ACTIVATE',
+        toggle: () => this.setState({ founders: founders.map(x => x.id === f.id ? Object.assign({}, x, { active: !x.active }) : x) }),
+        remove: () => this.setState({ founders: founders.filter(x => x.id !== f.id) })
+      })),
+      afName: s.afName, afEmail: s.afEmail, afRole: s.afRole,
+      onAfName: this.onInput('afName'), onAfEmail: this.onInput('afEmail'), onAfRole: this.onInput('afRole'),
+      addFounder: () => {
+        if (!s.afName.trim()) { return; }
+        this.setState({
+          founders: founders.concat([{ id: 'f' + (Date.now() % 100000), name: s.afName.trim(), email: s.afEmail.trim() || '—', role: s.afRole.trim() || 'Founder', joined: '2026-09-12', ownership: '—', active: true }]),
+          afName: '', afEmail: '', afRole: ''
+        });
+      },
+
+      enrolledCourses: s.enrolled.map(id => this.courses.find(c => c.id === id)).filter(Boolean).map(c => {
+        const p = s.progress[c.id] || 0;
+        return {
+          img: this.img(c.id), title: c.title, pct: p + '%',
+          status: p >= 100 ? 'COMPLETED · CERTIFICATE ISSUED' : p + '% COMPLETE · NEXT: ' + c.sections[0].lessons[0].title.toUpperCase(),
+          cta: p >= 100 ? 'Review' : 'Continue', btnBg: p >= 100 ? 'transparent' : '#0F1720',
+          btnFg: p >= 100 ? '#0F1720' : '#F7F8FA', open: this.nav('course', { cid: c.id })
+        };
+      }),
+      certificates: s.enrolled.filter(id => (s.progress[id] || 0) >= 100).map(id => {
+        const c = this.courses.find(x => x.id === id);
+        return { title: c.title, id: 'CERT-PC-' + id.toUpperCase() + '-0114', date: '2026-08-30' };
+      }),
+
+      adminTiles: [
+        { k: 'Products', v: this.products.length, sub: 'Catalogue records, all publishable', open: this.nav('products') },
+        { k: 'Courses', v: this.courses.length, sub: 'Sections, lessons, pricing, coupons', open: this.nav('courses') },
+        { k: 'Founders', v: founders.length, sub: 'Dynamic collection, no fixed count', open: this.nav('founders') },
+        { k: 'Expenses', v: s.expenses.length, sub: this.inr(total) + ' recorded to date', open: this.nav('dash') },
+        { k: 'Enquiries', v: s.enquiries.length, sub: 'Product, course, partnership, support', open: this.nav('admin') },
+        { k: 'Users', v: 214, sub: 'Roles: admin, founder, employee, student', open: this.nav('admin') },
+        { k: 'Orders', v: 96, sub: 'Razorpay, server-verified', open: this.nav('admin') },
+        { k: 'Revenue', v: this.inr(486400), sub: 'Course sales, last 12 months', open: this.nav('admin') }
+      ],
+      enquiries: s.enquiries
+    };
+  }
+}
+
+</script>
+</body>
+</html>

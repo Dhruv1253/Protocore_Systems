@@ -2,7 +2,7 @@
  * Firebase wiring for the Protocore workspace: sign-in, founder profiles and the expense ledger.
  *
  * Data model (Firestore):
- *   founders/{uid}   { name, email, role: 'admin' | 'founder', active: true }
+ *   Founders/{uid}   { name, email, role: 'Admin' | 'Founder', active: true }  (role and active are matched loosely)
  *   expenses/{id}    { fid, founderName, date, amount, category, desc, method, status, createdAt }
  *   meta/counters    { expense: <last expense number> }
  *
@@ -16,6 +16,10 @@ import {
   getFirestore, collection, doc, getDoc, onSnapshot, query, orderBy, runTransaction, deleteDoc, updateDoc, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
+
+const FOUNDERS = 'Founders';
+const isAdminRole = (r) => String(r || '').toLowerCase() === 'admin';
+const isActive = (a) => a === true || String(a).toLowerCase() === 'true';
 
 export const configured = !String(firebaseConfig.apiKey || '').includes('REPLACE_ME');
 
@@ -39,14 +43,14 @@ export function watchUser(cb) {
   return onAuthStateChanged(auth, async (user) => {
     if (!user) { cb(null); return; }
     try {
-      const snap = await getDoc(doc(db, 'founders', user.uid));
+      const snap = await getDoc(doc(db, FOUNDERS, user.uid));
       const f = snap.exists() ? snap.data() : null;
-      if (!f || f.active === false) {
+      if (!f || !isActive(f.active)) {
         await fbSignOut(auth);
         cb(null, 'This account is not an active Protocore founder.');
         return;
       }
-      cb({ uid: user.uid, name: f.name || user.email, email: user.email, role: f.role === 'admin' ? 'ADMIN' : 'FOUNDER', admin: f.role === 'admin' });
+      cb({ uid: user.uid, name: f.name || user.email, email: user.email, role: isAdminRole(f.role) ? 'ADMIN' : 'FOUNDER', admin: isAdminRole(f.role) });
     } catch (e) {
       cb(null, friendly(e));
     }
@@ -70,8 +74,8 @@ export async function resetPassword(email) {
 /** Live list of founders; cb(array). */
 export function watchFounders(cb, onError) {
   if (!db) return () => {};
-  return onSnapshot(collection(db, 'founders'),
-    (qs) => cb(qs.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+  return onSnapshot(collection(db, FOUNDERS),
+    (qs) => cb(qs.docs.map(d => Object.assign({ id: d.id }, d.data(), { admin: isAdminRole(d.data().role), active: isActive(d.data().active) }))),
     (e) => onError && onError(friendly(e)));
 }
 
@@ -106,6 +110,6 @@ export async function deleteExpense(id) {
 }
 
 export async function setFounderActive(uid, active) {
-  try { await updateDoc(doc(db, 'founders', uid), { active: !!active }); }
+  try { await updateDoc(doc(db, FOUNDERS, uid), { active: !!active }); }
   catch (e) { throw new Error(friendly(e)); }
 }

@@ -4,10 +4,10 @@
  * Firebase Authentication and the rules in firestore.rules.
  */
 export const firebaseConfig = {
-  apiKey: 'REPLACE_ME',
-  authDomain: 'REPLACE_ME.firebaseapp.com',
-  projectId: 'REPLACE_ME',
-  storageBucket: 'REPLACE_ME.appspot.com',
-  messagingSenderId: 'REPLACE_ME',
-  appId: 'REPLACE_ME'
+  apiKey: 'AIzaSyA3iTqab5tniGtAhXwTd1jE1maVWuV2NVM',
+  authDomain: 'protocoresystemsv3.firebaseapp.com',
+  projectId: 'protocoresystemsv3',
+  storageBucket: 'protocoresystemsv3.firebasestorage.app',
+  messagingSenderId: '166284192988',
+  appId: '1:166284192988:web:f8cb295b836ddb7f175819'
 };

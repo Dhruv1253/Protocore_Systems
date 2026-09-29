@@ -5,19 +5,19 @@ service cloud.firestore {
   match /databases/{db}/documents {
 
     function me() {
-      return get(/databases/$(db)/documents/founders/$(request.auth.uid)).data;
+      return get(/databases/$(db)/documents/Founders/$(request.auth.uid)).data;
     }
     function isFounder() {
       return request.auth != null
-        && exists(/databases/$(db)/documents/founders/$(request.auth.uid))
-        && me().active == true;
+        && exists(/databases/$(db)/documents/Founders/$(request.auth.uid))
+        && me().active in [true, 'true', 'True', 'TRUE'];
     }
     function isAdmin() {
-      return isFounder() && me().role == 'admin';
+      return isFounder() && me().role in ['admin', 'Admin', 'ADMIN'];
     }
 
     // Founder profiles: a founder can read their own and the others; only the admin can change them.
-    match /founders/{uid} {
+    match /Founders/{uid} {
       allow read: if (request.auth != null && request.auth.uid == uid) || isFounder();
       allow write: if isAdmin();
     }

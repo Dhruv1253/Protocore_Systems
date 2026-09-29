@@ -480,7 +480,7 @@
           <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
             <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px">
               <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ k.k }}</div>
-              <div style="margin-top:12px;font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ k.v }}</div>
+              <div style="margin-top:12px;font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em;color:{{ k.color }}">{{ k.v }}</div>
               <div style="margin-top:8px;font:400 11.5px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ k.sub }}</div>
             </div>
           </sc-for>
@@ -773,7 +773,7 @@ class Component extends DCLogic {
     enrolled: ['c1', 'c2'], progress: { c1: 42, c2: 100 },
     // Founders and expenses are loaded from Firestore after sign-in (see protocore-firebase.js).
     founders: [],
-    categories: ['Travel', 'Food', 'Office', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Investment', 'Miscellaneous'],
+    categories: ['Travel', 'Food', 'Office', 'Office Rent', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Investment', 'Miscellaneous'],
     expenses: [],
     enquiries: [
       { id: 'ENQ-0231', subject: 'Quotation for 6 HVAC panels', type: 'Product Enquiry', who: 'Larsen Projects', date: '2026-09-11' },
@@ -873,6 +873,11 @@ class Component extends DCLogic {
     const month = s.expenses.filter(e => e.date.slice(0, 7) === ym).reduce((a, e) => a + e.amount, 0);
     const year = s.expenses.filter(e => e.date.slice(0, 4) === ym.slice(0, 4)).reduce((a, e) => a + e.amount, 0);
     const pending = s.expenses.filter(e => e.status === 'Submitted').reduce((a, e) => a + e.amount, 0);
+    // Balance: Investment entries add money in; every other category (e.g. Office Rent) takes it out. Rejected entries are ignored.
+    const counted = s.expenses.filter(e => e.status !== 'Rejected');
+    const invested = counted.filter(e => e.category === 'Investment').reduce((a, e) => a + e.amount, 0);
+    const spent = counted.filter(e => e.category !== 'Investment').reduce((a, e) => a + e.amount, 0);
+    const balance = invested - spent;
 
     const fTotals = founders.map(f => {
       const es = s.expenses.filter(e => e.fid === f.id);
@@ -1016,10 +1021,11 @@ class Component extends DCLogic {
       },
 
       kpis: [
-        { k: 'Total expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES' },
-        { k: now.toLocaleString('en-IN', { month: 'long', year: 'numeric' }), v: this.inr(month), sub: 'CURRENT MONTH' },
-        { k: 'Year ' + ym.slice(0, 4), v: this.inr(year), sub: 'CURRENT YEAR' },
-        { k: 'Awaiting approval', v: this.inr(pending), sub: s.expenses.filter(e => e.status === 'Submitted').length + ' SUBMITTED' }
+        { k: 'Balance', v: (balance < 0 ? '−' : '') + this.inr(Math.abs(balance)), sub: 'INVESTED ' + this.inr(invested) + ' · SPENT ' + this.inr(spent), color: balance < 0 ? '#B42318' : '#067647' },
+        { k: 'Total expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES', color: '#0F1720' },
+        { k: now.toLocaleString('en-IN', { month: 'long', year: 'numeric' }), v: this.inr(month), sub: 'CURRENT MONTH', color: '#0F1720' },
+        { k: 'Year ' + ym.slice(0, 4), v: this.inr(year), sub: 'CURRENT YEAR', color: '#0F1720' },
+        { k: 'Awaiting approval', v: this.inr(pending), sub: s.expenses.filter(e => e.status === 'Submitted').length + ' SUBMITTED', color: '#0F1720' }
       ],
       founderCount: active.length, periodLabel: 'ALL TIME',
       byFounder: fTotals.map(f => ({

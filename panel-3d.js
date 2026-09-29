@@ -42,7 +42,7 @@
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
       camera.position.set(8.4, 3.4, 11.6);
-      camera.lookAt(0, 0.2, 0);
+      camera.lookAt(0, -0.45, 0);
 
       scene.add(new THREE.HemisphereLight(0xdfe7ef, 0x0b0f14, 0.75));
       const key = new THREE.DirectionalLight(0xffffff, 1.15);
@@ -69,7 +69,7 @@
       const rig = new THREE.Group();
       scene.add(rig);
       const model = new THREE.Group();
-      model.scale.setScalar(0.82);
+      model.scale.setScalar(0.95);
       rig.add(model);
 
       const std = (color, rough, metal) => new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal });

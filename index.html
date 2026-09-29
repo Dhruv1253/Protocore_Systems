@@ -488,19 +488,19 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
           <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
             <div style="display:flex;justify-content:space-between;align-items:baseline">
-              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">By founder</div>
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Investment by founder</div>
               <div style="font:400 10px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ founderCount }} ACTIVE</div>
             </div>
             <sc-for list="{{ byFounder }}" as="f" hint-placeholder-count="3">
               <div style="display:flex;flex-direction:column;gap:7px">
                 <div style="display:flex;justify-content:space-between;font:500 13.5px/1 Manrope,sans-serif"><span>{{ f.name }}</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:400">{{ f.amt }}</span></div>
                 <div style="height:8px;border-radius:999px;background:#EAECF0"><div style="height:8px;border-radius:999px;background:#0F1720;width:{{ f.pct }}"></div></div>
-                <div style="font:400 10px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ f.count }} ENTRIES · {{ f.share }} OF TOTAL</div>
+                <div style="font:400 10px/1 'IBM Plex Mono',monospace;color:#98A2B3">{{ f.count }} INVESTMENTS · {{ f.share }} OF TOTAL INVESTED</div>
               </div>
             </sc-for>
           </div>
           <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
-            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">By category</div>
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Spending by category</div>
             <sc-for list="{{ byCategory }}" as="c" hint-placeholder-count="6">
               <div style="display:flex;flex-direction:column;gap:6px">
                 <div style="display:flex;justify-content:space-between;font:400 13px/1 'IBM Plex Mono',monospace"><span>{{ c.name }}</span><span>{{ c.amt }}</span></div>
@@ -646,7 +646,7 @@
           </div>
         </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
-          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Founder-wise spend · {{ periodLabel }}</div>
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Investment by founder · {{ periodLabel }}</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
             <sc-for list="{{ byFounder }}" as="f" hint-placeholder-count="3">
               <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px">
@@ -867,26 +867,31 @@ class Component extends DCLogic {
     const canDelete = !!me && !!me.admin && s.role === 'ADMIN';
     const product = this.products.find(p => p.id === s.pid) || this.products[0];
     const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
-    const total = s.expenses.reduce((a, e) => a + e.amount, 0);
+    // Investment entries are money founders put in; every other category is company spending paid from that pool.
+    const isInvestment = e => e.category === 'Investment';
+    const spending = s.expenses.filter(e => !isInvestment(e));
+    const total = spending.reduce((a, e) => a + e.amount, 0);
     const now = new Date();
     const ym = now.toISOString().slice(0, 7);
-    const month = s.expenses.filter(e => e.date.slice(0, 7) === ym).reduce((a, e) => a + e.amount, 0);
-    const year = s.expenses.filter(e => e.date.slice(0, 4) === ym.slice(0, 4)).reduce((a, e) => a + e.amount, 0);
-    const pending = s.expenses.filter(e => e.status === 'Submitted').reduce((a, e) => a + e.amount, 0);
-    // Balance: Investment entries add money in; every other category (e.g. Office Rent) takes it out. Rejected entries are ignored.
+    const month = spending.filter(e => e.date.slice(0, 7) === ym).reduce((a, e) => a + e.amount, 0);
+    const year = spending.filter(e => e.date.slice(0, 4) === ym.slice(0, 4)).reduce((a, e) => a + e.amount, 0);
+    const pendingList = spending.filter(e => e.status === 'Submitted');
+    const pending = pendingList.reduce((a, e) => a + e.amount, 0);
+    // Balance = investments in minus spending out. Rejected entries are ignored.
     const counted = s.expenses.filter(e => e.status !== 'Rejected');
-    const invested = counted.filter(e => e.category === 'Investment').reduce((a, e) => a + e.amount, 0);
-    const spent = counted.filter(e => e.category !== 'Investment').reduce((a, e) => a + e.amount, 0);
+    const invested = counted.filter(isInvestment).reduce((a, e) => a + e.amount, 0);
+    const spent = counted.filter(e => !isInvestment(e)).reduce((a, e) => a + e.amount, 0);
     const balance = invested - spent;
 
+    // Founder contribution counts only their (non-rejected) investments, not spending they recorded for the company.
     const fTotals = founders.map(f => {
-      const es = s.expenses.filter(e => e.fid === f.id);
+      const es = counted.filter(e => isInvestment(e) && e.fid === f.id);
       return { id: f.id, name: f.name, sum: es.reduce((a, e) => a + e.amount, 0), count: es.length };
     }).sort((a, b) => b.sum - a.sum);
     const fMax = Math.max(1, ...fTotals.map(f => f.sum));
 
     const catTotals = {};
-    s.expenses.forEach(e => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
+    spending.forEach(e => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
     const cats = Object.keys(catTotals).map(k => ({ name: k, sum: catTotals[k] })).sort((a, b) => b.sum - a.sum).slice(0, 7);
     const cMax = Math.max(1, ...cats.map(c => c.sum));
 
@@ -926,14 +931,14 @@ class Component extends DCLogic {
         const net = rev - total;
         return [
           { k: 'Course revenue', v: this.inr(rev), sub: 'LAST 6 MONTHS', color: '#0F1720' },
-          { k: 'Company expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES', color: '#0F1720' },
+          { k: 'Company expenses', v: this.inr(total), sub: spending.length + ' ENTRIES', color: '#0F1720' },
           { k: 'Net position', v: this.inr(net), sub: net >= 0 ? 'SURPLUS' : 'DEFICIT', color: net >= 0 ? '#067647' : '#912018' },
           { k: 'Awaiting approval', v: this.inr(pending), sub: 'NOT YET REIMBURSED', color: '#0F1720' }
         ];
       })(),
       financeRows: Object.keys(this.monthlyRevenue).sort().reverse().map(k => {
         const rv = this.monthlyRevenue[k];
-        const ex = s.expenses.filter(e => e.date.slice(0, 7) === k).reduce((a, e) => a + e.amount, 0);
+        const ex = spending.filter(e => e.date.slice(0, 7) === k).reduce((a, e) => a + e.amount, 0);
         const n = rv - ex;
         return {
           month: k, rev: this.inr(rv), exp: this.inr(ex),
@@ -1021,17 +1026,17 @@ class Component extends DCLogic {
       },
 
       kpis: [
-        { k: 'Balance', v: (balance < 0 ? '−' : '') + this.inr(Math.abs(balance)), sub: 'INVESTED ' + this.inr(invested) + ' · SPENT ' + this.inr(spent), color: balance < 0 ? '#B42318' : '#067647' },
-        { k: 'Total expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES', color: '#0F1720' },
+        { k: 'Balance', v: (balance < 0 ? '−' : '') + this.inr(Math.abs(balance)), sub: 'IN ' + this.inr(invested) + ' · OUT ' + this.inr(spent), color: balance < 0 ? '#B42318' : '#067647' },
+        { k: 'Total spending', v: this.inr(total), sub: spending.length + ' ENTRIES · EXCL. INVESTMENT', color: '#0F1720' },
         { k: now.toLocaleString('en-IN', { month: 'long', year: 'numeric' }), v: this.inr(month), sub: 'CURRENT MONTH', color: '#0F1720' },
         { k: 'Year ' + ym.slice(0, 4), v: this.inr(year), sub: 'CURRENT YEAR', color: '#0F1720' },
-        { k: 'Awaiting approval', v: this.inr(pending), sub: s.expenses.filter(e => e.status === 'Submitted').length + ' SUBMITTED', color: '#0F1720' }
+        { k: 'Awaiting approval', v: this.inr(pending), sub: pendingList.length + ' SUBMITTED', color: '#0F1720' }
       ],
       founderCount: active.length, periodLabel: 'ALL TIME',
       byFounder: fTotals.map(f => ({
         name: f.name, amt: this.inr(f.sum), count: f.count,
         pct: (f.sum / fMax * 100).toFixed(1) + '%',
-        share: total ? Math.round(f.sum / total * 100) + '%' : '0%'
+        share: invested ? Math.round(f.sum / invested * 100) + '%' : '0%'
       })),
       byCategory: cats.map(c => ({ name: c.name, amt: this.inr(c.sum), pct: (c.sum / cMax * 100).toFixed(1) + '%' })),
       fFounder: s.fFounder, fCategory: s.fCategory, fStatus: s.fStatus,

@@ -99,7 +99,7 @@
       </section>
       <section style="max-width:1320px;margin:0 auto;padding:0 24px 72px">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
-          <sc-for list="{{ homeProducts }}" as="p" hint-placeholder-count="6">
+          <sc-for list="{{ homeProducts }}" as="p" hint-placeholder-count="7">
             <div onClick="{{ p.open }}" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:0;cursor:pointer;display:flex;flex-direction:column" style-hover="background:#F9FAFB">
               <div role="img" aria-label="{{ p.name }}" style="width:100%;height:168px;background-color:#EDF0F4;background-image:url({{ p.img }});background-size:contain;background-position:center;background-repeat:no-repeat"></div>
               <div style="padding:22px;display:flex;flex-direction:column;gap:9px;flex:1">
@@ -946,7 +946,7 @@ class Component extends DCLogic {
 
       stats: [{ k: 'Panels delivered', v: '2,400+' }, { k: 'Years building', v: '10' }, { k: 'Active sites monitored', v: '58' }, { k: 'Engineers trained', v: '3,600' }],
       productCount: this.products.length,
-      homeProducts: this.products.slice(0, 6).map(p => ({ img: this.img(p.id), slug: p.slug, name: p.name, category: p.category, blurb: p.blurb, open: this.nav('product', { pid: p.id }) })),
+      homeProducts: this.products.map(p => ({ img: this.img(p.id), slug: p.slug, name: p.name, category: p.category, blurb: p.blurb, open: this.nav('product', { pid: p.id }) })),
       homeCourses: this.courses.slice(0, 3).map(c => ({ title: c.title, meta: c.instructor.toUpperCase() + ' · ' + c.duration.toUpperCase() + ' · ' + c.level.toUpperCase(), priceFmt: this.inr(c.price), open: this.nav('course', { cid: c.id }) })),
       categoryChips: prodCats.map(c => chip(c, s.prodFilter === c, () => this.set('prodFilter', c))),
       filteredProducts: this.products.filter(p => s.prodFilter === 'All' || p.category === s.prodFilter)

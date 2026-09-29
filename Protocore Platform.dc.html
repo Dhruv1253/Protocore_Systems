@@ -618,21 +618,21 @@
         <div>
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">COMPANY / FOUNDERS</div>
           <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Founder management</h1>
-          <p style="margin:14px 0 0;max-width:64ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">To add a founder, create their login in Firebase Authentication and a matching document in the <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px">founders</span> collection. The admin can deactivate a founder here.</p>
+          <p style="margin:14px 0 0;max-width:64ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">To add a founder, create their login in Firebase Authentication and a matching document in the <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px">Founders</span> collection. The admin can deactivate a founder here.</p>
         </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
           <div style="overflow-x:auto">
-            <div style="min-width:900px">
-              <div style="display:grid;grid-template-columns:1fr 200px 130px 130px 110px 100px 90px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+            <div style="min-width:1100px">
+              <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(300px,1.3fr) 100px 110px 110px 100px 100px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
                 <span>Founder</span><span>Email</span><span>Role</span><span>Joined</span><span>Ownership</span><span>Status</span><span></span>
               </div>
               <sc-for list="{{ founderRows }}" as="f" hint-placeholder-count="3">
-                <div style="display:grid;grid-template-columns:1fr 200px 130px 130px 110px 100px 90px;gap:16px;padding:14px 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
+                <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(300px,1.3fr) 100px 110px 110px 100px 100px;gap:16px;padding:14px 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
                   <span style="display:flex;gap:12px;align-items:center">
                     <span style="width:30px;height:30px;border-radius:50%;background:#EAECF0;display:grid;place-items:center;font:500 11px/1 'IBM Plex Mono',monospace;color:#667085">{{ f.initials }}</span>
                     <span style="font-family:Manrope,sans-serif;font-size:14.5px;font-weight:500">{{ f.name }}</span>
                   </span>
-                  <span style="color:#667085">{{ f.email }}</span>
+                  <span style="color:#667085;overflow-wrap:anywhere">{{ f.email }}</span>
                   <span>{{ f.role }}</span>
                   <span>{{ f.joined }}</span>
                   <span>{{ f.ownership }}</span>

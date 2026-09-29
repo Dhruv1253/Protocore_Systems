@@ -128,12 +128,16 @@
         add(0.1, 0.62, 0.07, matInk, 0.52, -0.35, 0.09);
         if (d === 1) {
           // Protocore badge, top of centre door
-          const badge = add(0.98, 0.5, 0.03, new THREE.MeshStandardMaterial({ color: 0xf2f4f6, roughness: 0.45, metalness: 0.1 }), 0, 1.95, 0.07);
-          const tex = new THREE.TextureLoader().load('uploads/PC%20Logo.png');
+          const badge = add(1.18, 0.4, 0.03, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45, metalness: 0.05 }), 0, 1.95, 0.07);
+          const tex = new THREE.TextureLoader().load('pc-logo.png');
           tex.encoding = THREE.sRGBEncoding;
+          tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+          // crop the logo's white margins so the wordmark fills the badge
+          tex.repeat.set(0.92, 0.5);
+          tex.offset.set(0.04, 0.27);
           const decal = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.9, 0.42),
-            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.5, metalness: 0 })
+            new THREE.PlaneGeometry(1.1, 0.3),
+            new THREE.MeshStandardMaterial({ map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.35, roughness: 0.5, metalness: 0 })
           );
           decal.position.set(0, 0, 0.017);
           badge.add(decal);

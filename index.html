@@ -880,8 +880,7 @@ class Component extends DCLogic {
     // Wallet balance: Investment entries credit the wallet, every other category debits it. Rejected entries are ignored.
     const counted = s.expenses.filter(e => e.status !== 'Rejected');
     const invested = counted.filter(isInvestment).reduce((a, e) => a + e.amount, 0);
-    // Only approved (or already reimbursed) spending debits the wallet.
-    const spent = s.expenses.filter(e => !isInvestment(e) && (e.status === 'Approved' || e.status === 'Reimbursed')).reduce((a, e) => a + e.amount, 0);
+    const spent = counted.filter(e => !isInvestment(e)).reduce((a, e) => a + e.amount, 0);
     const balance = invested - spent;
 
     // Founder contribution counts only their (non-rejected) investments, not spending they recorded for the company.

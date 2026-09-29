@@ -494,7 +494,9 @@
             <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">EXPENSE MANAGEMENT</div>
             <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Company expenses</h1>
           </div>
-          <button onClick="{{ goAddExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 22px;font:600 13.5px Manrope,sans-serif;cursor:pointer">Record expense</button>
+          <sc-if value="{{ canRecord }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ goAddExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 22px;font:600 13.5px Manrope,sans-serif;cursor:pointer">Record expense</button>
+          </sc-if>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
           <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
@@ -543,12 +545,12 @@
             </select>
           </div>
           <div style="overflow-x:auto">
-            <div style="min-width:860px">
-              <div style="display:grid;grid-template-columns:110px 96px 1fr 130px 120px 110px 110px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
-                <span>ID</span><span>Date</span><span>Description</span><span>Category</span><span>Founder</span><span>Status</span><span style="text-align:right">Amount</span>
+            <div style="min-width:930px">
+              <div style="display:grid;grid-template-columns:110px 96px 1fr 130px 120px 110px 110px 60px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+                <span>ID</span><span>Date</span><span>Description</span><span>Category</span><span>Founder</span><span>Status</span><span style="text-align:right">Amount</span><span></span>
               </div>
               <sc-for list="{{ ledger }}" as="e" hint-placeholder-count="8">
-                <div style="display:grid;grid-template-columns:110px 96px 1fr 130px 120px 110px 110px;gap:16px;padding:{{ rowPad }} 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
+                <div style="display:grid;grid-template-columns:110px 96px 1fr 130px 120px 110px 110px 60px;gap:16px;padding:{{ rowPad }} 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
                   <span style="color:#98A2B3">{{ e.id }}</span>
                   <span>{{ e.date }}</span>
                   <span style="font-family:Manrope,sans-serif;font-size:14px">{{ e.desc }}</span>
@@ -556,6 +558,7 @@
                   <span>{{ e.founder }}</span>
                   <span><span style="background:{{ e.statusBg }};color:{{ e.statusFg }};padding:4px 10px;border-radius:999px;font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase">{{ e.status }}</span></span>
                   <span style="text-align:right;font-weight:500">{{ e.amt }}</span>
+                  <span style="text-align:right"><span onClick="{{ e.del }}" style="display:{{ e.delDisplay }};cursor:pointer;color:#D81324;font-size:11px;letter-spacing:.08em">DELETE</span></span>
                 </div>
               </sc-for>
             </div>
@@ -574,13 +577,15 @@
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">EXPENSE MANAGEMENT / NEW</div>
           <h1 style="margin:10px 0 0;font:700 30px/1 Manrope,sans-serif;letter-spacing:-.025em">Record an expense</h1>
         </div>
+        <sc-if value="{{ cannotRecord }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FEF3F2;border:1px solid #FECDCA;border-radius:18px;padding:18px 20px;font:400 14px/1.5 Manrope,sans-serif;color:#912018">Only founders can record expenses. Sign in as a founder to continue.</div>
+        </sc-if>
+        <sc-if value="{{ canRecord }}" hint-placeholder-val="{{ true }}">
         <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:14px">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
             <label style="display:flex;flex-direction:column;gap:7px">
               <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Founder</span>
-              <select value="{{ nFounder }}" onChange="{{ onNFounder }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif">
-                <sc-for list="{{ activeFounderNames }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
-              </select>
+              <input value="{{ currentFounder }}" readonly style="background:#EAECF0;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif;color:#475467">
             </label>
             <label style="display:flex;flex-direction:column;gap:7px">
               <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Date</span>
@@ -622,6 +627,7 @@
             <div style="background:#ECFDF3;border:1px solid #A9EFC5;padding:14px;font:400 13px/1.5 'IBM Plex Mono',monospace;color:#067647">Saved as {{ savedId }} — dashboard totals updated.</div>
           </sc-if>
         </div>
+        </sc-if>
       </section>
     </sc-if>
 
@@ -783,34 +789,22 @@ class Component extends DCLogic {
 
   state = {
     route: 'home', pid: 'starter-panels', cid: 'c1',
-    role: null, email: null,
+    role: null, email: null, uid: null,
     prodFilter: 'All', q: '', level: 'All',
     fFounder: 'All founders', fCategory: 'All categories', fStatus: 'All statuses',
-    loginRole: 'FOUNDER',
+    loginAs: 'f1',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
-    nFounder: 'Sandeep Kulkarni', nDate: '2026-09-12', nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '', saved: false, savedId: '',
+    nDate: '2026-09-12', nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '', saved: false, savedId: '',
     afName: '', afEmail: '', afRole: '',
     enrolled: ['c1', 'c2'], progress: { c1: 42, c2: 100 },
+    // Only these founders can record expenses; the one with admin: true can also delete them.
     founders: [
-      { id: 'f1', name: 'Sandeep Kulkarni', email: 'sandeep@protocore.in', role: 'Engineering', joined: '2016-04-01', ownership: '40%', active: true },
-      { id: 'f2', name: 'Rohit Deshmukh', email: 'rohit@protocore.in', role: 'Operations', joined: '2016-04-01', ownership: '35%', active: true },
-      { id: 'f3', name: 'Anita Fernandes', email: 'anita@protocore.in', role: 'Commercial', joined: '2018-07-15', ownership: '25%', active: true }
+      { id: 'f1', name: 'Dhruv Gaund', email: '—', role: 'Admin', joined: '—', ownership: '—', active: true, admin: true },
+      { id: 'f2', name: 'Vishal Wagh', email: '—', role: 'Founder', joined: '—', ownership: '—', active: true },
+      { id: 'f3', name: 'Shubham Aher', email: '—', role: 'Founder', joined: '—', ownership: '—', active: true }
     ],
     categories: ['Travel', 'Food', 'Office', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Miscellaneous'],
-    expenses: [
-      { id: 'EXP-0412', fid: 'f1', date: '2026-09-11', amount: 8450, category: 'Travel', desc: 'Site visit — Hinjewadi pump room', method: 'UPI', status: 'Submitted' },
-      { id: 'EXP-0411', fid: 'f3', date: '2026-09-10', amount: 12600, category: 'Marketing', desc: 'Trade expo booth deposit', method: 'Bank transfer', status: 'Approved' },
-      { id: 'EXP-0410', fid: 'f2', date: '2026-09-09', amount: 3180, category: 'Logistics', desc: 'Panel freight to Nashik site', method: 'Cash', status: 'Reimbursed' },
-      { id: 'EXP-0409', fid: 'f1', date: '2026-09-08', amount: 2400, category: 'Client Meeting', desc: 'Lunch with EPC consultant', method: 'Card', status: 'Approved' },
-      { id: 'EXP-0408', fid: 'f2', date: '2026-09-05', amount: 21500, category: 'Equipment', desc: 'Insulation tester calibration', method: 'Bank transfer', status: 'Approved' },
-      { id: 'EXP-0407', fid: 'f3', date: '2026-09-04', amount: 5900, category: 'Software', desc: 'CAD seat renewal, quarterly', method: 'Card', status: 'Reimbursed' },
-      { id: 'EXP-0406', fid: 'f1', date: '2026-09-02', amount: 1650, category: 'Internet', desc: 'Workshop broadband', method: 'Auto-debit', status: 'Reimbursed' },
-      { id: 'EXP-0405', fid: 'f2', date: '2026-08-29', amount: 9300, category: 'Office', desc: 'Drawing table and racks', method: 'Bank transfer', status: 'Approved' },
-      { id: 'EXP-0404', fid: 'f3', date: '2026-08-27', amount: 4200, category: 'Travel', desc: 'Mumbai client visit, rail', method: 'UPI', status: 'Rejected' },
-      { id: 'EXP-0403', fid: 'f1', date: '2026-08-22', amount: 15750, category: 'Equipment', desc: 'Crimping tool set', method: 'Card', status: 'Approved' },
-      { id: 'EXP-0402', fid: 'f2', date: '2026-08-18', amount: 6800, category: 'Utilities', desc: 'Workshop power bill', method: 'Auto-debit', status: 'Reimbursed' },
-      { id: 'EXP-0401', fid: 'f3', date: '2026-08-14', amount: 2750, category: 'Food', desc: 'Shop floor team lunch', method: 'Cash', status: 'Draft' }
-    ],
+    expenses: [], expSeq: 1,
     enquiries: [
       { id: 'ENQ-0231', subject: 'Quotation for 6 HVAC panels', type: 'Product Enquiry', who: 'Larsen Projects', date: '2026-09-11' },
       { id: 'ENQ-0230', subject: 'Bulk licence for PLC course', type: 'Course Enquiry', who: 'Aqua Utilities', date: '2026-09-10' },
@@ -858,6 +852,9 @@ class Component extends DCLogic {
     const fmap = {};
     founders.forEach(f => { fmap[f.id] = f; });
     const active = founders.filter(f => f.active);
+    const me = active.find(f => f.id === s.uid) || null;
+    const canRecord = !!me && (s.role === 'FOUNDER' || s.role === 'ADMIN');
+    const canDelete = !!me && !!me.admin && s.role === 'ADMIN';
     const product = this.products.find(p => p.id === s.pid) || this.products[0];
     const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
     const total = s.expenses.reduce((a, e) => a + e.amount, 0);
@@ -892,7 +889,8 @@ class Component extends DCLogic {
     ].filter(n => {
       if (s.role === 'ADMIN') return true;
       if (s.role === 'STUDENT') return n.route === 'learning';
-      return n.route !== 'admin' && n.route !== 'learning';
+      if (s.role === 'FOUNDER') return n.route !== 'admin' && n.route !== 'learning';
+      return n.route === 'dash';
     });
 
     return {
@@ -938,7 +936,7 @@ class Component extends DCLogic {
         };
       }),
       goAddExpense: this.nav('add'), goFounders: this.nav('founders'), goLearning: this.nav('learning'),
-      logout: () => this.setState({ role: null, email: null, route: 'home' }),
+      logout: () => this.setState({ role: null, email: null, uid: null, route: 'home' }),
       appNav: appNavDefs.map(n => ({
         label: n.label, open: this.nav(n.route === 'add' ? 'add' : n.route),
         bg: s.route === n.route ? '#F7F8FA' : 'transparent', fg: s.route === n.route ? '#0F1720' : '#B7BECD'
@@ -995,18 +993,24 @@ class Component extends DCLogic {
       sendEnquiry: () => this.setState({ sent: true, enquiryId: 'ENQ-0' + (232 + Math.floor(Math.random() * 9)) }),
 
       lEmail: s.email || '', lPass: '', onLEmail: this.onInput('email'), onLPass: () => {},
-      roleChips: ['ADMIN', 'FOUNDER', 'EMPLOYEE', 'STUDENT'].map(r => chip(r, s.loginRole === r, () => this.set('loginRole', r))),
+      roleChips: active.map(f => ({ key: f.id, label: f.name.toUpperCase() + (f.admin ? ' · ADMIN' : ' · FOUNDER') }))
+        .concat([{ key: 'EMPLOYEE', label: 'EMPLOYEE' }, { key: 'STUDENT', label: 'STUDENT' }])
+        .map(r => chip(r.label, s.loginAs === r.key, () => this.set('loginAs', r.key))),
       roleDocs: [
-        { k: 'ADMIN', v: 'Full platform: products, courses, founders, expenses, users, enquiries, orders.' },
-        { k: 'FOUNDER', v: 'Company expense management, founder-wise spend, approvals.' },
-        { k: 'EMPLOYEE', v: 'Own expenses only — record, submit, track reimbursement.' },
+        { k: 'ADMIN', v: 'Dhruv Gaund. Full platform access, and the only account that can delete expenses.' },
+        { k: 'FOUNDER', v: 'Vishal Wagh and Shubham Aher. Record company expenses, founder-wise spend.' },
+        { k: 'EMPLOYEE', v: 'View the expense dashboard. Cannot record expenses.' },
         { k: 'STUDENT', v: 'Purchased courses and My Learning.' }
       ],
-      doLogin: () => this.setState({
-        role: s.loginRole,
-        email: s.email || (s.loginRole.toLowerCase() + '@protocore.in'),
-        route: s.loginRole === 'STUDENT' ? 'learning' : 'dash'
-      }),
+      doLogin: () => {
+        const f = active.find(x => x.id === s.loginAs);
+        if (f) {
+          this.setState({ role: f.admin ? 'ADMIN' : 'FOUNDER', uid: f.id, email: f.name, route: 'dash' });
+        } else {
+          const r = s.loginAs === 'STUDENT' ? 'STUDENT' : 'EMPLOYEE';
+          this.setState({ role: r, uid: null, email: s.email || (r.toLowerCase() + '@protocore.in'), route: r === 'STUDENT' ? 'learning' : 'dash' });
+        }
+      },
 
       kpis: [
         { k: 'Total expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES' },
@@ -1029,27 +1033,34 @@ class Component extends DCLogic {
       rowPad: this.props.tableDensity === 'compact' ? '9px' : '14px',
       ledger: ledgerRaw.map(e => {
         const c = this.statusColors(e.status);
-        return { id: e.id, date: e.date, desc: e.desc, category: e.category, status: e.status, amt: this.inr(e.amount), statusBg: c[0], statusFg: c[1], founder: fmap[e.fid] ? fmap[e.fid].name.split(' ')[0] : '—' };
+        return {
+          id: e.id, date: e.date, desc: e.desc, category: e.category, status: e.status, amt: this.inr(e.amount), statusBg: c[0], statusFg: c[1], founder: fmap[e.fid] ? fmap[e.fid].name.split(' ')[0] : '—',
+          delDisplay: canDelete ? 'inline' : 'none',
+          del: () => {
+            if (!canDelete || !window.confirm('Delete expense ' + e.id + '?')) { return; }
+            this.setState({ expenses: s.expenses.filter(x => x.id !== e.id) });
+          }
+        };
       }),
+      canRecord: canRecord, cannotRecord: !canRecord,
+      currentFounder: me ? me.name : '',
       ledgerCount: ledgerRaw.length,
       ledgerTotal: this.inr(ledgerRaw.reduce((a, e) => a + e.amount, 0)),
 
-      activeFounderNames: active.map(f => f.name),
       categories: s.categories, methods: ['UPI', 'Card', 'Cash', 'Bank transfer', 'Auto-debit'],
       statuses: ['Draft', 'Submitted', 'Approved', 'Rejected', 'Reimbursed'],
-      nFounder: s.nFounder, nDate: s.nDate, nAmount: s.nAmount, nCategory: s.nCategory,
+      nDate: s.nDate, nAmount: s.nAmount, nCategory: s.nCategory,
       nMethod: s.nMethod, nStatus: s.nStatus, nDesc: s.nDesc, saved: s.saved, savedId: s.savedId,
-      onNFounder: this.onInput('nFounder'), onNDate: this.onInput('nDate'), onNAmount: this.onInput('nAmount'),
+      onNDate: this.onInput('nDate'), onNAmount: this.onInput('nAmount'),
       onNCategory: this.onInput('nCategory'), onNMethod: this.onInput('nMethod'), onNStatus: this.onInput('nStatus'),
       onNDesc: this.onInput('nDesc'),
       saveExpense: () => {
         const amt = parseFloat(String(s.nAmount).replace(/[^0-9.]/g, '')) || 0;
-        if (!amt) { return; }
-        const f = founders.find(x => x.name === s.nFounder) || active[0];
-        const id = 'EXP-0' + (413 + s.expenses.length - 12);
+        if (!amt || !canRecord) { return; }
+        const id = 'EXP-' + String(s.expSeq).padStart(4, '0');
         this.setState({
-          expenses: [{ id: id, fid: f ? f.id : 'f1', date: s.nDate, amount: amt, category: s.nCategory, desc: s.nDesc || 'Untitled expense', method: s.nMethod, status: s.nStatus }].concat(s.expenses),
-          saved: true, savedId: id, nAmount: '', nDesc: ''
+          expenses: [{ id: id, fid: me.id, date: s.nDate, amount: amt, category: s.nCategory, desc: s.nDesc || 'Untitled expense', method: s.nMethod, status: s.nStatus }].concat(s.expenses),
+          expSeq: s.expSeq + 1, saved: true, savedId: id, nAmount: '', nDesc: ''
         });
       },
 

@@ -17,7 +17,7 @@
  */
 
 export const FINANCE_USERS = [
-  { username: 'Admin', password: 'Admin123#', role: 'ADMIN', displayName: 'Administrator' }
+  { username: 'Admin', password: 'Admin123#', role: 'ADMIN', displayName: 'Dhruv Gaund' }
 ];
 
 /** Roles allowed to open the Finance section. */

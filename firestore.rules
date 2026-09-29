@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// Paste into Firebase console → Firestore Database → Rules, then Publish.
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function me() {
+      return get(/databases/$(db)/documents/founders/$(request.auth.uid)).data;
+    }
+    function isFounder() {
+      return request.auth != null
+        && exists(/databases/$(db)/documents/founders/$(request.auth.uid))
+        && me().active == true;
+    }
+    function isAdmin() {
+      return isFounder() && me().role == 'admin';
+    }
+
+    // Founder profiles: a founder can read their own and the others; only the admin can change them.
+    match /founders/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || isFounder();
+      allow write: if isAdmin();
+    }
+
+    // Expenses: founders record their own; nobody edits; only the admin deletes.
+    match /expenses/{id} {
+      allow read: if isFounder();
+      allow create: if isFounder()
+        && request.resource.data.fid == request.auth.uid
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Sequential expense numbers (EXP-0001, …): may only move forward by one.
+    match /meta/counters {
+      allow read: if isFounder();
+      allow create: if isFounder() && request.resource.data.expense == 1;
+      allow update: if isFounder() && request.resource.data.expense == resource.data.expense + 1;
+    }
+  }
+}

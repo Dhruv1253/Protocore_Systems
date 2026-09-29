@@ -386,22 +386,8 @@
         <section style="max-width:520px;margin:0 auto;padding:72px 24px 110px;display:flex;flex-direction:column;gap:18px">
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">RESTRICTED · FINANCE</div>
           <h1 style="margin:0;font:700 30px/1.05 Manrope,sans-serif;letter-spacing:-.025em">Sign in to continue</h1>
-          <p style="margin:0;font:400 15px/1.6 Manrope,sans-serif;color:#475467">Company financial records are available to administrators and founders only.</p>
-          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:14px">
-            <label style="display:flex;flex-direction:column;gap:7px">
-              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Username</span>
-              <input value="{{ fiUser }}" onChange="{{ onFiUser }}" placeholder="Admin" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
-            </label>
-            <label style="display:flex;flex-direction:column;gap:7px">
-              <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Password</span>
-              <input type="password" value="{{ fiPass }}" onChange="{{ onFiPass }}" placeholder="••••••••" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
-            </label>
-            <button onClick="{{ financeLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Unlock Finance</button>
-            <sc-if value="{{ fiError }}" hint-placeholder-val="{{ false }}">
-              <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ fiError }}</div>
-            </sc-if>
-            <div style="font:400 11px/1.6 'IBM Plex Mono',monospace;color:#98A2B3">Credentials live in finance-auth.js — swap that file for Firebase Auth later.</div>
-          </div>
+          <p style="margin:0;font:400 15px/1.6 Manrope,sans-serif;color:#475467">Company financial records are available to founders only.</p>
+          <button onClick="{{ goLogin }}" style="align-self:flex-start;background:#0F1720;color:#F7F8FA;border:0;padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">Sign in</button>
         </section>
       </sc-if>
       <sc-if value="{{ financeOpen }}" hint-placeholder-val="{{ false }}">
@@ -411,7 +397,7 @@
               <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">FINANCE · {{ fiWho }}</div>
               <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Company finances</h1>
             </div>
-            <button onClick="{{ financeLogout }}" style="background:transparent;color:#0F1720;border:1px solid #E4E7EC;padding:12px 18px;font:600 13px Manrope,sans-serif;white-space:nowrap;cursor:pointer">Lock Finance</button>
+            <button onClick="{{ logout }}" style="background:transparent;color:#0F1720;border:1px solid #E4E7EC;padding:12px 18px;font:600 13px Manrope,sans-serif;white-space:nowrap;cursor:pointer">Sign out</button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
             <sc-for list="{{ financeKpis }}" as="k" hint-placeholder-count="4">
@@ -459,20 +445,20 @@
         <div style="display:flex;flex-direction:column;gap:18px">
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">SIGN IN</div>
           <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">Protocore workspace</h1>
-          <p style="margin:0;max-width:46ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">One account, role-based access. Founders and employees reach expense management; students reach their courses. Roles come from the user record, not the URL.</p>
+          <p style="margin:0;max-width:46ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">Founder accounts only. Sign in to manage company expenses and finances.</p>
         </div>
         <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:14px">
-          <input value="{{ lEmail }}" onChange="{{ onLEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
+          <input type="email" value="{{ lEmail }}" onChange="{{ onLEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
           <input type="password" value="{{ lPass }}" onChange="{{ onLPass }}" placeholder="Password" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
-          <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085;margin-top:6px">Sign in as (demo)</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
-            <sc-for list="{{ roleChips }}" as="rc" hint-placeholder-count="4">
-              <button onClick="{{ rc.pick }}" style="background:{{ rc.bg }};color:{{ rc.fg }};border:1px solid {{ rc.bd }};padding:11px 8px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;cursor:pointer">{{ rc.label }}</button>
-            </sc-for>
-          </div>
-          <button onClick="{{ doLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer;margin-top:6px">Continue</button>
+          <button onClick="{{ doLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer;margin-top:6px">{{ loginBtn }}</button>
+          <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ authError }}</div>
+          </sc-if>
+          <sc-if value="{{ authNote }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#ECFDF3;border:1px solid #A9EFC5;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#067647">{{ authNote }}</div>
+          </sc-if>
           <div style="display:flex;justify-content:space-between;font:400 12px/1 'IBM Plex Mono',monospace;color:#667085">
-            <span style="color:#D81324;cursor:pointer">Forgot password</span><span style="color:#D81324;cursor:pointer">Create account</span>
+            <span onClick="{{ forgotPassword }}" style="color:#D81324;cursor:pointer">Forgot password</span>
           </div>
         </div>
       </section>
@@ -612,11 +598,14 @@
           </label>
           <div style="border:1px dashed #D0D5DD;border-radius:16px;background:#F9FAFB;padding:26px;text-align:center;font:400 12px/1.6 'IBM Plex Mono',monospace;color:#667085">DROP RECEIPT — JPG / PNG / PDF<br>stored privately, referenced by expense record</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button onClick="{{ saveExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:14px 24px;font:600 14px Manrope,sans-serif;cursor:pointer">Save expense</button>
+            <button onClick="{{ saveExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:14px 24px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ saveBtn }}</button>
             <button onClick="{{ goDash }}" style="background:transparent;color:#0F1720;border:1px solid #0F1720;padding:14px 24px;font:600 14px Manrope,sans-serif;cursor:pointer">Cancel</button>
           </div>
           <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
             <div style="background:#ECFDF3;border:1px solid #A9EFC5;padding:14px;font:400 13px/1.5 'IBM Plex Mono',monospace;color:#067647">Saved as {{ savedId }} — dashboard totals updated.</div>
+          </sc-if>
+          <sc-if value="{{ saveError }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FEE4E2;border:1px solid #FCCFCB;padding:14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ saveError }}</div>
           </sc-if>
         </div>
         </sc-if>
@@ -629,7 +618,7 @@
         <div>
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">COMPANY / FOUNDERS</div>
           <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Founder management</h1>
-          <p style="margin:14px 0 0;max-width:64ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">Founders are documents in <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px">company/{companyId}/founders/{founderId}</span>. Add or deactivate one below and every total, filter and comparison recalculates — nothing in the dashboard assumes three.</p>
+          <p style="margin:14px 0 0;max-width:64ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">To add a founder, create their login in Firebase Authentication and a matching document in the <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px">founders</span> collection. The admin can deactivate a founder here.</p>
         </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
           <div style="overflow-x:auto">
@@ -649,18 +638,11 @@
                   <span>{{ f.ownership }}</span>
                   <span><span style="background:{{ f.stBg }};color:{{ f.stFg }};padding:4px 10px;border-radius:999px;font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase">{{ f.status }}</span></span>
                   <span style="display:flex;gap:10px;justify-content:flex-end">
-                    <span onClick="{{ f.toggle }}" style="cursor:pointer;color:#D81324;font-size:11px">{{ f.toggleLabel }}</span>
-                    <span onClick="{{ f.remove }}" style="cursor:pointer;color:#98A2B3;font-size:11px">DEL</span>
+                    <span onClick="{{ f.toggle }}" style="display:{{ f.toggleDisplay }};cursor:pointer;color:#D81324;font-size:11px">{{ f.toggleLabel }}</span>
                   </span>
                 </div>
               </sc-for>
             </div>
-          </div>
-          <div style="padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;background:#F9FAFB;border-top:1px solid #EAECF0">
-            <input value="{{ afName }}" onChange="{{ onAfName }}" placeholder="Name" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:11px 12px;font:400 13.5px Manrope,sans-serif">
-            <input value="{{ afEmail }}" onChange="{{ onAfEmail }}" placeholder="Email" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:11px 12px;font:400 13.5px Manrope,sans-serif">
-            <input value="{{ afRole }}" onChange="{{ onAfRole }}" placeholder="Role" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);border:1px solid #E4E7EC;padding:11px 12px;font:400 13.5px Manrope,sans-serif">
-            <button onClick="{{ addFounder }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:12px 18px;font:600 13px Manrope,sans-serif;cursor:pointer">Add founder</button>
           </div>
         </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
@@ -784,19 +766,15 @@ class Component extends DCLogic {
     role: null, email: null, uid: null,
     prodFilter: 'All', q: '', level: 'All',
     fFounder: 'All founders', fCategory: 'All categories', fStatus: 'All statuses',
-    loginAs: 'f1',
+    lEmail: '', lPass: '', authBusy: false, authError: '', authNote: '',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
-    nDate: '2026-09-12', nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '', saved: false, savedId: '',
-    afName: '', afEmail: '', afRole: '',
+    nDate: new Date().toISOString().slice(0, 10), nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '',
+    saved: false, savedId: '', savingExp: false, saveError: '',
     enrolled: ['c1', 'c2'], progress: { c1: 42, c2: 100 },
-    // Only these founders can record expenses; the one with admin: true can also delete them.
-    founders: [
-      { id: 'f1', name: 'Dhruv Gaund', email: '—', role: 'Admin', joined: '—', ownership: '—', active: true, admin: true },
-      { id: 'f2', name: 'Vishal Wagh', email: '—', role: 'Founder', joined: '—', ownership: '—', active: true },
-      { id: 'f3', name: 'Shubham Aher', email: '—', role: 'Founder', joined: '—', ownership: '—', active: true }
-    ],
+    // Founders and expenses are loaded from Firestore after sign-in (see protocore-firebase.js).
+    founders: [],
     categories: ['Travel', 'Food', 'Office', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Miscellaneous'],
-    expenses: [], expSeq: 1,
+    expenses: [],
     enquiries: [
       { id: 'ENQ-0231', subject: 'Quotation for 6 HVAC panels', type: 'Product Enquiry', who: 'Larsen Projects', date: '2026-09-11' },
       { id: 'ENQ-0230', subject: 'Bulk licence for PLC course', type: 'Course Enquiry', who: 'Aqua Utilities', date: '2026-09-10' },
@@ -819,9 +797,49 @@ class Component extends DCLogic {
   monthlyRevenue = { '2026-04': 68400, '2026-05': 74900, '2026-06': 61200, '2026-07': 88500, '2026-08': 79600, '2026-09': 52300 };
 
   componentDidMount() {
-    import('./finance-auth.js')
-      .then(m => { this.financeAuth = m; })
-      .catch(() => { this.financeAuth = null; });
+    if (this.fbStarted) { return; }
+    this.fbStarted = true;
+    const privateRoutes = ['dash', 'add', 'founders', 'admin'];
+    import('./protocore-firebase.js').then(fb => {
+      this.fb = fb;
+      if (!fb.configured) { return; }
+      this.unsubUser = fb.watchUser((u, err) => {
+        if (this.unsubData) { this.unsubData(); this.unsubData = null; }
+        const s = this.state;
+        if (!u) {
+          const wasFounder = s.role === 'ADMIN' || s.role === 'FOUNDER';
+          this.setState(Object.assign(
+            { authBusy: false, authError: err || s.authError, founders: [], expenses: [] },
+            wasFounder ? { role: null, uid: null, email: null, route: privateRoutes.indexOf(s.route) >= 0 ? 'home' : s.route } : {}
+          ));
+          return;
+        }
+        const stopFounders = fb.watchFounders(list => this.setState({
+          founders: list.map(f => ({
+            id: f.id, name: f.name || f.email || 'Founder', email: f.email || '—',
+            role: f.role === 'admin' ? 'Admin' : 'Founder', admin: f.role === 'admin', active: f.active !== false,
+            joined: f.joined || '—', ownership: f.ownership || '—'
+          }))
+        }));
+        const stopExpenses = fb.watchExpenses(list => this.setState({
+          expenses: list.map(e => ({
+            id: e.id, fid: e.fid, founderName: e.founderName || '', date: e.date || '', amount: Number(e.amount) || 0,
+            category: e.category || 'Miscellaneous', desc: e.desc || '', method: e.method || '', status: e.status || 'Submitted'
+          }))
+        }));
+        this.unsubData = () => { stopFounders(); stopExpenses(); };
+        this.setState({
+          authBusy: false, authError: '', authNote: '', lPass: '',
+          role: u.role, uid: u.uid, email: u.name, route: s.route === 'login' ? 'dash' : s.route
+        });
+      });
+    }).catch(() => this.setState({ authError: 'Could not load sign-in. Check your connection and reload.' }));
+  }
+
+  componentWillUnmount() {
+    if (this.unsubData) { this.unsubData(); this.unsubData = null; }
+    if (this.unsubUser) { this.unsubUser(); this.unsubUser = null; }
+    this.fbStarted = false;
   }
 
   img(id) { return this.imgs[id] || './main-image.png'; }
@@ -850,8 +868,10 @@ class Component extends DCLogic {
     const product = this.products.find(p => p.id === s.pid) || this.products[0];
     const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
     const total = s.expenses.reduce((a, e) => a + e.amount, 0);
-    const month = s.expenses.filter(e => e.date.slice(0, 7) === '2026-09').reduce((a, e) => a + e.amount, 0);
-    const year = s.expenses.filter(e => e.date.slice(0, 4) === '2026').reduce((a, e) => a + e.amount, 0);
+    const now = new Date();
+    const ym = now.toISOString().slice(0, 7);
+    const month = s.expenses.filter(e => e.date.slice(0, 7) === ym).reduce((a, e) => a + e.amount, 0);
+    const year = s.expenses.filter(e => e.date.slice(0, 4) === ym.slice(0, 4)).reduce((a, e) => a + e.amount, 0);
     const pending = s.expenses.filter(e => e.status === 'Submitted').reduce((a, e) => a + e.amount, 0);
 
     const fTotals = founders.map(f => {
@@ -895,18 +915,7 @@ class Component extends DCLogic {
       goContact: this.nav('contact'), goLogin: this.nav('login'), goDash: this.nav('dash'),
       isFinance: s.route === 'finance',
       goFinance: this.nav('finance'),
-      financeLocked: !s.fiUserOk, financeOpen: !!s.fiUserOk, fiWho: s.fiUserOk,
-      fiUser: s.fiUser || '', fiPass: s.fiPass || '', fiError: s.fiError || '',
-      onFiUser: this.onInput('fiUser'), onFiPass: this.onInput('fiPass'),
-      financeLogin: () => {
-        const mod = this.financeAuth;
-        if (!mod) { this.setState({ fiError: 'Auth module not loaded — check finance-auth.js.' }); return; }
-        mod.authenticate(s.fiUser, s.fiPass).then(r => {
-          if (r.ok) { this.setState({ fiUserOk: r.user.displayName + ' · ' + r.user.role, fiPass: '', fiError: '' }); }
-          else { this.setState({ fiError: r.error || 'Sign in failed.' }); }
-        });
-      },
-      financeLogout: () => this.setState({ fiUserOk: null, fiUser: '', fiPass: '', fiError: '' }),
+      financeLocked: !canRecord, financeOpen: canRecord, fiWho: me ? me.name.toUpperCase() + ' · ' + s.role : '',
       financeKpis: (() => {
         const rev = Object.keys(this.monthlyRevenue).reduce((a, k) => a + this.monthlyRevenue[k], 0);
         const net = rev - total;
@@ -928,7 +937,10 @@ class Component extends DCLogic {
         };
       }),
       goAddExpense: this.nav('add'), goFounders: this.nav('founders'), goLearning: this.nav('learning'),
-      logout: () => this.setState({ role: null, email: null, uid: null, route: 'home' }),
+      logout: () => {
+        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [] });
+        if (this.fb) { this.fb.signOut(); }
+      },
       appNav: appNavDefs.map(n => ({
         label: n.label, open: this.nav(n.route === 'add' ? 'add' : n.route),
         bg: s.route === n.route ? '#F7F8FA' : 'transparent', fg: s.route === n.route ? '#0F1720' : '#B7BECD'
@@ -984,24 +996,29 @@ class Component extends DCLogic {
       sent: s.sent, enquiryId: s.enquiryId,
       sendEnquiry: () => this.setState({ sent: true, enquiryId: 'ENQ-0' + (232 + Math.floor(Math.random() * 9)) }),
 
-      lEmail: s.email || '', lPass: '', onLEmail: this.onInput('email'), onLPass: () => {},
-      roleChips: active.map(f => ({ key: f.id, label: f.name.toUpperCase() + (f.admin ? ' · ADMIN' : ' · FOUNDER') }))
-        .concat([{ key: 'EMPLOYEE', label: 'EMPLOYEE' }, { key: 'STUDENT', label: 'STUDENT' }])
-        .map(r => chip(r.label, s.loginAs === r.key, () => this.set('loginAs', r.key))),
+      lEmail: s.lEmail, lPass: s.lPass, onLEmail: this.onInput('lEmail'), onLPass: this.onInput('lPass'),
+      loginBtn: s.authBusy ? 'Signing in…' : 'Sign in',
+      authError: s.authError, authNote: s.authNote,
       doLogin: () => {
-        const f = active.find(x => x.id === s.loginAs);
-        if (f) {
-          this.setState({ role: f.admin ? 'ADMIN' : 'FOUNDER', uid: f.id, email: f.name, route: 'dash' });
-        } else {
-          const r = s.loginAs === 'STUDENT' ? 'STUDENT' : 'EMPLOYEE';
-          this.setState({ role: r, uid: null, email: s.email || (r.toLowerCase() + '@protocore.in'), route: r === 'STUDENT' ? 'learning' : 'dash' });
-        }
+        if (s.authBusy) { return; }
+        if (!this.fb) { this.setState({ authError: 'Sign-in is still loading. Try again in a moment.', authNote: '' }); return; }
+        if (!this.fb.configured) { this.setState({ authError: 'Sign-in is not set up yet.', authNote: '' }); return; }
+        if (!s.lEmail.trim() || !s.lPass) { this.setState({ authError: 'Enter your email and password.', authNote: '' }); return; }
+        this.setState({ authBusy: true, authError: '', authNote: '' });
+        this.fb.signIn(s.lEmail, s.lPass).catch(e => this.setState({ authBusy: false, authError: e.message }));
+      },
+      forgotPassword: () => {
+        if (!this.fb || !this.fb.configured) { this.setState({ authError: 'Sign-in is not set up yet.', authNote: '' }); return; }
+        if (!s.lEmail.trim()) { this.setState({ authError: 'Enter your email above, then click Forgot password.', authNote: '' }); return; }
+        this.fb.resetPassword(s.lEmail)
+          .then(() => this.setState({ authError: '', authNote: 'Password reset email sent to ' + s.lEmail.trim() + '.' }))
+          .catch(e => this.setState({ authError: e.message, authNote: '' }));
       },
 
       kpis: [
         { k: 'Total expenses', v: this.inr(total), sub: s.expenses.length + ' ENTRIES' },
-        { k: 'September 2026', v: this.inr(month), sub: 'CURRENT MONTH' },
-        { k: 'FY 2026', v: this.inr(year), sub: 'CURRENT YEAR' },
+        { k: now.toLocaleString('en-IN', { month: 'long', year: 'numeric' }), v: this.inr(month), sub: 'CURRENT MONTH' },
+        { k: 'Year ' + ym.slice(0, 4), v: this.inr(year), sub: 'CURRENT YEAR' },
         { k: 'Awaiting approval', v: this.inr(pending), sub: s.expenses.filter(e => e.status === 'Submitted').length + ' SUBMITTED' }
       ],
       founderCount: active.length, periodLabel: 'ALL TIME',
@@ -1020,11 +1037,11 @@ class Component extends DCLogic {
       ledger: ledgerRaw.map(e => {
         const c = this.statusColors(e.status);
         return {
-          id: e.id, date: e.date, desc: e.desc, category: e.category, status: e.status, amt: this.inr(e.amount), statusBg: c[0], statusFg: c[1], founder: fmap[e.fid] ? fmap[e.fid].name.split(' ')[0] : '—',
+          id: e.id, date: e.date, desc: e.desc, category: e.category, status: e.status, amt: this.inr(e.amount), statusBg: c[0], statusFg: c[1], founder: (fmap[e.fid] ? fmap[e.fid].name : e.founderName || '—').split(' ')[0],
           delDisplay: canDelete ? 'inline' : 'none',
           del: () => {
             if (!canDelete || !window.confirm('Delete expense ' + e.id + '?')) { return; }
-            this.setState({ expenses: s.expenses.filter(x => x.id !== e.id) });
+            this.fb.deleteExpense(e.id).catch(err => window.alert('Could not delete ' + e.id + ': ' + err.message));
           }
         };
       }),
@@ -1040,14 +1057,15 @@ class Component extends DCLogic {
       onNDate: this.onInput('nDate'), onNAmount: this.onInput('nAmount'),
       onNCategory: this.onInput('nCategory'), onNMethod: this.onInput('nMethod'), onNStatus: this.onInput('nStatus'),
       onNDesc: this.onInput('nDesc'),
+      saveBtn: s.savingExp ? 'Saving…' : 'Save expense', saveError: s.saveError,
       saveExpense: () => {
         const amt = parseFloat(String(s.nAmount).replace(/[^0-9.]/g, '')) || 0;
-        if (!amt || !canRecord) { return; }
-        const id = 'EXP-' + String(s.expSeq).padStart(4, '0');
-        this.setState({
-          expenses: [{ id: id, fid: me.id, date: s.nDate, amount: amt, category: s.nCategory, desc: s.nDesc || 'Untitled expense', method: s.nMethod, status: s.nStatus }].concat(s.expenses),
-          expSeq: s.expSeq + 1, saved: true, savedId: id, nAmount: '', nDesc: ''
-        });
+        if (!canRecord || s.savingExp) { return; }
+        if (!amt) { this.setState({ saveError: 'Enter an amount greater than zero.' }); return; }
+        this.setState({ savingExp: true, saveError: '', saved: false });
+        this.fb.addExpense({ founderName: me.name, date: s.nDate, amount: amt, category: s.nCategory, desc: s.nDesc || 'Untitled expense', method: s.nMethod, status: s.nStatus })
+          .then(id => this.setState({ savingExp: false, saved: true, savedId: id, nAmount: '', nDesc: '' }))
+          .catch(e => this.setState({ savingExp: false, saveError: e.message }));
       },
 
       founderRows: founders.map(f => ({
@@ -1056,18 +1074,12 @@ class Component extends DCLogic {
         status: f.active ? 'Active' : 'Inactive',
         stBg: f.active ? '#DCFAE6' : '#EAECF0', stFg: f.active ? '#067647' : '#667085',
         toggleLabel: f.active ? 'DEACTIVATE' : 'ACTIVATE',
-        toggle: () => this.setState({ founders: founders.map(x => x.id === f.id ? Object.assign({}, x, { active: !x.active }) : x) }),
-        remove: () => this.setState({ founders: founders.filter(x => x.id !== f.id) })
+        toggleDisplay: canDelete && !f.admin ? 'inline' : 'none',
+        toggle: () => {
+          if (!canDelete || f.admin) { return; }
+          this.fb.setFounderActive(f.id, !f.active).catch(err => window.alert('Could not update ' + f.name + ': ' + err.message));
+        }
       })),
-      afName: s.afName, afEmail: s.afEmail, afRole: s.afRole,
-      onAfName: this.onInput('afName'), onAfEmail: this.onInput('afEmail'), onAfRole: this.onInput('afRole'),
-      addFounder: () => {
-        if (!s.afName.trim()) { return; }
-        this.setState({
-          founders: founders.concat([{ id: 'f' + (Date.now() % 100000), name: s.afName.trim(), email: s.afEmail.trim() || '—', role: s.afRole.trim() || 'Founder', joined: '2026-09-12', ownership: '—', active: true }]),
-          afName: '', afEmail: '', afRole: ''
-        });
-      },
 
       enrolledCourses: s.enrolled.map(id => this.courses.find(c => c.id === id)).filter(Boolean).map(c => {
         const p = s.progress[c.id] || 0;

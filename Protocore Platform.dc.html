@@ -470,7 +470,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
           <div>
             <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">EXPENSE MANAGEMENT</div>
-            <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Company expenses</h1>
+            <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Company Finance Management</h1>
           </div>
           <sc-if value="{{ canRecord }}" hint-placeholder-val="{{ true }}">
             <button onClick="{{ goAddExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 22px;font:600 13.5px Manrope,sans-serif;cursor:pointer">Record expense</button>
@@ -877,10 +877,11 @@ class Component extends DCLogic {
     const year = spending.filter(e => e.date.slice(0, 4) === ym.slice(0, 4)).reduce((a, e) => a + e.amount, 0);
     const pendingList = spending.filter(e => e.status === 'Submitted');
     const pending = pendingList.reduce((a, e) => a + e.amount, 0);
-    // Balance = investments in minus spending out. Rejected entries are ignored.
+    // Wallet balance: Investment entries credit the wallet, every other category debits it. Rejected entries are ignored.
     const counted = s.expenses.filter(e => e.status !== 'Rejected');
     const invested = counted.filter(isInvestment).reduce((a, e) => a + e.amount, 0);
-    const spent = counted.filter(e => !isInvestment(e)).reduce((a, e) => a + e.amount, 0);
+    // Only approved (or already reimbursed) spending debits the wallet.
+    const spent = s.expenses.filter(e => !isInvestment(e) && (e.status === 'Approved' || e.status === 'Reimbursed')).reduce((a, e) => a + e.amount, 0);
     const balance = invested - spent;
 
     // Founder contribution counts only their (non-rejected) investments, not spending they recorded for the company.
@@ -1026,7 +1027,7 @@ class Component extends DCLogic {
       },
 
       kpis: [
-        { k: 'Balance', v: (balance < 0 ? '−' : '') + this.inr(Math.abs(balance)), sub: 'IN ' + this.inr(invested) + ' · OUT ' + this.inr(spent), color: balance < 0 ? '#B42318' : '#067647' },
+        { k: 'Wallet Balance', v: (balance < 0 ? '−' : '') + this.inr(Math.abs(balance)), sub: '+' + this.inr(invested) + ' INVESTED · −' + this.inr(spent) + ' SPENT', color: balance < 0 ? '#B42318' : '#067647' },
         { k: 'Total spending', v: this.inr(total), sub: spending.length + ' ENTRIES · EXCL. INVESTMENT', color: '#0F1720' },
         { k: now.toLocaleString('en-IN', { month: 'long', year: 'numeric' }), v: this.inr(month), sub: 'CURRENT MONTH', color: '#0F1720' },
         { k: 'Year ' + ym.slice(0, 4), v: this.inr(year), sub: 'CURRENT YEAR', color: '#0F1720' },

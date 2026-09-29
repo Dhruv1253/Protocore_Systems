@@ -460,14 +460,6 @@
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">SIGN IN</div>
           <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">Protocore workspace</h1>
           <p style="margin:0;max-width:46ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">One account, role-based access. Founders and employees reach expense management; students reach their courses. Roles come from the user record, not the URL.</p>
-          <div style="display:flex;flex-direction:column;gap:16px;margin-top:8px">
-            <sc-for list="{{ roleDocs }}" as="r" hint-placeholder-count="4">
-              <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:16px 18px;display:flex;gap:16px;align-items:baseline">
-                <div style="min-width:92px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#D81324">{{ r.k }}</div>
-                <div style="font:400 14px/1.5 Manrope,sans-serif;color:#475467">{{ r.v }}</div>
-              </div>
-            </sc-for>
-          </div>
         </div>
         <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:14px">
           <input value="{{ lEmail }}" onChange="{{ onLEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
@@ -996,12 +988,6 @@ class Component extends DCLogic {
       roleChips: active.map(f => ({ key: f.id, label: f.name.toUpperCase() + (f.admin ? ' · ADMIN' : ' · FOUNDER') }))
         .concat([{ key: 'EMPLOYEE', label: 'EMPLOYEE' }, { key: 'STUDENT', label: 'STUDENT' }])
         .map(r => chip(r.label, s.loginAs === r.key, () => this.set('loginAs', r.key))),
-      roleDocs: [
-        { k: 'ADMIN', v: 'Dhruv Gaund. Full platform access, and the only account that can delete expenses.' },
-        { k: 'FOUNDER', v: 'Vishal Wagh and Shubham Aher. Record company expenses, founder-wise spend.' },
-        { k: 'EMPLOYEE', v: 'View the expense dashboard. Cannot record expenses.' },
-        { k: 'STUDENT', v: 'Purchased courses and My Learning.' }
-      ],
       doLogin: () => {
         const f = active.find(x => x.id === s.loginAs);
         if (f) {

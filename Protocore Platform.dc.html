@@ -69,7 +69,7 @@
             <div style="display:flex;align-items:center;gap:10px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#FF8A93">
               <span style="width:6px;height:6px;border-radius:999px;background:#D81324;display:block"></span>EST. 2025 · NASHIK, INDIA
             </div>
-            <h1 style="margin: 0; font: 700 clamp(38px,4.9vw,64px)/1.0 Manrope,sans-serif; letter-spacing: -.03em; text-wrap: balance; color: #7B0000">Systems</h1>
+            <h1 style="margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .3em; row-gap: 6px; font: 700 clamp(38px,4.9vw,64px)/1.0 Manrope,sans-serif; letter-spacing: -.03em"><span style="color: #7B0000">Systems</span><span style="color: #F7F8FA; font-size: clamp(28px,3.1vw,40px); text-wrap: balance">Engineered to Specifications</span></h1>
             
             <p style="margin:0;max-width:46ch;font:400 17px/1.65 Manrope,sans-serif;color:#AAB4C0;text-wrap:pretty">We design and build control panels, automation solutions, pump &amp; HVAC systems, and remote monitoring technologies — backed by practical engineering expertise.</p><div style="display:flex;gap:12px;flex-wrap:wrap">
               
@@ -78,8 +78,7 @@
           </div>
           <div style="display:flex;align-items:center;justify-content:center;padding:24px 0 40px">
             <x-import component-from-global-scope="panel-3d" from="./panel-3d.js" hint-size="100%,460px" style="width: 100%; min-height: 460px; padding-top: 0px; padding-bottom: 0px; border-width: 1px; border-style: solid; border-color: #000000"></x-import>
-          </div>
-        <h1 style="margin: 0; font: 700 clamp(38px,4.9vw,64px)/1.0 Manrope,sans-serif; letter-spacing: -.03em; text-wrap: balance; align-self: auto; position: absolute; left: 221px; top: 121px; width: 615px; height: 47px; font-size: 40px">Engineered to Specifications</h1></div>
+          </div></div>
         <div style="max-width:1320px;margin:0 auto;padding:0 24px">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:rgba(255,255,255,.1);border-top:1px solid rgba(255,255,255,.1)">
             <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">

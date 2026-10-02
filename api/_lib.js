@@ -18,10 +18,11 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 // Prices are decided here, never by the browser. Keep in sync with `courses` in index.html.
 export const COURSES = {
-  c1: { title: 'LT Control Panel Design from Scratch', price: 4999 },
-  c2: { title: 'VFD and Soft Starter Commissioning', price: 3999 },
-  c3: { title: 'PLC Programming for Pump Automation', price: 6499 },
-  c4: { title: 'IoT Remote Monitoring for Panels', price: 3499 }
+  // TEMP: ₹1 test prices. Real prices: c1 4999, c2 3999, c3 6499, c4 3499 (restore here and in index.html).
+  c1: { title: 'LT Control Panel Design from Scratch', price: 1 },
+  c2: { title: 'VFD and Soft Starter Commissioning', price: 1 },
+  c3: { title: 'PLC Programming for Pump Automation', price: 1 },
+  c4: { title: 'IoT Remote Monitoring for Panels', price: 1 }
 };
 
 export class HttpError extends Error {

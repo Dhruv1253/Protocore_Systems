@@ -33,6 +33,16 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Course purchases: written only by the /api payment functions (Admin SDK), never by the browser.
+    match /enrollments/{id} {
+      allow read: if (request.auth != null && resource.data.uid == request.auth.uid) || isFounder();
+      allow write: if false;
+    }
+    match /orders/{id} {
+      allow read: if isFounder();
+      allow write: if false;
+    }
+
     // Sequential expense numbers (EXP-0001, …): may only move forward by one.
     match /meta/counters {
       allow read: if isFounder();

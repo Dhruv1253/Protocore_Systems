@@ -326,8 +326,11 @@
                 <button onClick="{{ goLearning }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Continue learning</button>
               </sc-if>
               <sc-if value="{{ courseNotOwned }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ buyCourse }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Buy now</button>
-                <div style="font:400 11px/1.6 'IBM Plex Mono',monospace;color:#667085">Checkout → Razorpay → server-side verification → enrolment. Payment is never confirmed from the browser alone.</div>
+                <button onClick="{{ buyCourse }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ buyBtn }}</button>
+                <sc-if value="{{ buyError }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ buyError }}</div>
+                </sc-if>
+                <div style="font:400 11px/1.6 'IBM Plex Mono',monospace;color:#667085">Secure payment by Razorpay · UPI, cards, netbanking, wallets. Access unlocks on your account as soon as payment is confirmed.</div>
               </sc-if>
               <div style="border-top:1px solid #EAECF0;padding-top:14px;display:flex;flex-direction:column;gap:8px;font:400 12.5px/1 'IBM Plex Mono',monospace;color:#475467">
                 <div style="display:flex;justify-content:space-between"><span style="color:#667085">Lessons</span><span>{{ course.lessonCount }}</span></div>
@@ -444,10 +447,15 @@
       <section style="max-width:1320px;margin:0 auto;padding:72px 24px 96px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px;align-items:start">
         <div style="display:flex;flex-direction:column;gap:18px">
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">SIGN IN</div>
-          <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">Protocore workspace</h1>
-          <p style="margin:0;max-width:46ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">Founder accounts only. Sign in to manage company expenses and finances.</p>
+          <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">{{ authTitle }}</h1>
+          <p style="margin:0;max-width:46ch;font:400 15.5px/1.65 Manrope,sans-serif;color:#475467">Students: create an account to buy courses and open them from any device. Founders: sign in with your company account to manage expenses and finances.</p>
         </div>
         <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:14px">
+          <button onClick="{{ doGoogle }}" style="background:#FFFFFF;color:#0F1720;border:1px solid #D0D5DD;padding:14px;font:600 14px Manrope,sans-serif;cursor:pointer">Continue with Google</button>
+          <div style="display:flex;align-items:center;gap:12px;font:400 11px/1 'IBM Plex Mono',monospace;color:#98A2B3"><span style="flex:1;height:1px;background:#EAECF0"></span>OR WITH EMAIL<span style="flex:1;height:1px;background:#EAECF0"></span></div>
+          <sc-if value="{{ isSignUp }}" hint-placeholder-val="{{ false }}">
+            <input type="text" value="{{ lName }}" onChange="{{ onLName }}" placeholder="Full name" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
+          </sc-if>
           <input type="email" value="{{ lEmail }}" onChange="{{ onLEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
           <input type="password" value="{{ lPass }}" onChange="{{ onLPass }}" placeholder="Password" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
           <button onClick="{{ doLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer;margin-top:6px">{{ loginBtn }}</button>
@@ -458,7 +466,10 @@
             <div style="background:#ECFDF3;border:1px solid #A9EFC5;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#067647">{{ authNote }}</div>
           </sc-if>
           <div style="display:flex;justify-content:space-between;font:400 12px/1 'IBM Plex Mono',monospace;color:#667085">
-            <span onClick="{{ forgotPassword }}" style="color:#D81324;cursor:pointer">Forgot password</span>
+            <span onClick="{{ toggleAuthMode }}" style="color:#0F1720;cursor:pointer">{{ authSwitchText }}</span>
+            <sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ true }}">
+              <span onClick="{{ forgotPassword }}" style="color:#D81324;cursor:pointer">Forgot password</span>
+            </sc-if>
           </div>
         </div>
       </section>
@@ -766,11 +777,13 @@ class Component extends DCLogic {
     role: null, email: null, uid: null,
     prodFilter: 'All', q: '', level: 'All',
     fFounder: 'All founders', fCategory: 'All categories', fStatus: 'All statuses',
-    lEmail: '', lPass: '', authBusy: false, authError: '', authNote: '',
+    lEmail: '', lPass: '', lName: '', authMode: 'signin', authBusy: false, authError: '', authNote: '', afterLogin: null,
+    buyBusy: false, buyError: '',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
     nDate: new Date().toISOString().slice(0, 10), nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '',
     saved: false, savedId: '', savingExp: false, saveError: '',
-    enrolled: ['c1', 'c2'], progress: { c1: 42, c2: 100 },
+    // Paid course ids, loaded from Firestore `enrollments` after sign-in. Lesson progress is not tracked yet.
+    enrolled: [], progress: {},
     // Founders and expenses are loaded from Firestore after sign-in (see protocore-firebase.js).
     founders: [],
     categories: ['Travel', 'Food', 'Office', 'Office Rent', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Investment', 'Miscellaneous'],
@@ -807,11 +820,18 @@ class Component extends DCLogic {
         if (this.unsubData) { this.unsubData(); this.unsubData = null; }
         const s = this.state;
         if (!u) {
-          const wasFounder = s.role === 'ADMIN' || s.role === 'FOUNDER';
           this.setState(Object.assign(
-            { authBusy: false, authError: err || s.authError, founders: [], expenses: [] },
-            wasFounder ? { role: null, uid: null, email: null, route: privateRoutes.indexOf(s.route) >= 0 ? 'home' : s.route } : {}
+            { authBusy: false, authError: err || s.authError, founders: [], expenses: [], enrolled: [] },
+            s.role ? { role: null, uid: null, email: null, route: privateRoutes.concat(['learning']).indexOf(s.route) >= 0 ? 'home' : s.route } : {}
           ));
+          return;
+        }
+        const stopEnrolled = fb.watchEnrollments(u.uid, ids => this.setState({ enrolled: ids }));
+        const next = s.route !== 'login' ? s.route : (s.afterLogin || (u.role === 'STUDENT' ? 'learning' : 'dash'));
+        const signedIn = { authBusy: false, authError: '', authNote: '', lPass: '', afterLogin: null, role: u.role, uid: u.uid, email: u.name, route: next };
+        if (u.role === 'STUDENT') {
+          this.unsubData = stopEnrolled;
+          this.setState(signedIn);
           return;
         }
         const stopFounders = fb.watchFounders(list => this.setState({
@@ -827,11 +847,8 @@ class Component extends DCLogic {
             category: e.category || 'Miscellaneous', desc: e.desc || '', method: e.method || '', status: e.status || 'Submitted'
           }))
         }));
-        this.unsubData = () => { stopFounders(); stopExpenses(); };
-        this.setState({
-          authBusy: false, authError: '', authNote: '', lPass: '',
-          role: u.role, uid: u.uid, email: u.name, route: s.route === 'login' ? 'dash' : s.route
-        });
+        this.unsubData = () => { stopFounders(); stopExpenses(); stopEnrolled(); };
+        this.setState(signedIn);
       });
     }).catch(() => this.setState({ authError: 'Could not load sign-in. Check your connection and reload.' }));
   }
@@ -948,7 +965,7 @@ class Component extends DCLogic {
       }),
       goAddExpense: this.nav('add'), goFounders: this.nav('founders'), goLearning: this.nav('learning'),
       logout: () => {
-        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [] });
+        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [], enrolled: [] });
         if (this.fb) { this.fb.signOut(); }
       },
       appNav: appNavDefs.map(n => ({
@@ -986,11 +1003,20 @@ class Component extends DCLogic {
       }),
       courseOwned: s.enrolled.indexOf(s.cid) >= 0,
       courseNotOwned: s.enrolled.indexOf(s.cid) < 0,
-      buyCourse: () => this.setState({
-        role: s.role || 'STUDENT', email: s.email || 'student@example.com',
-        enrolled: s.enrolled.concat([s.cid]),
-        progress: Object.assign({}, s.progress, { [s.cid]: 0 }), route: 'learning'
-      }),
+      buyBtn: s.buyBusy ? 'Processing payment…' : 'Buy now', buyError: s.buyError,
+      // Payment is created and verified by /api (Razorpay); the course unlocks when the server writes the enrolment.
+      buyCourse: () => {
+        if (s.buyBusy) { return; }
+        if (!s.uid) {
+          this.setState({ route: 'login', afterLogin: 'course', authMode: 'signup', authError: '', buyError: '', authNote: 'Create an account or sign in to buy this course.' });
+          return;
+        }
+        const cid = course.id;
+        this.setState({ buyBusy: true, buyError: '' });
+        this.fb.buyCourse(cid, { name: s.email, email: this.fb.currentEmail() })
+          .then(r => this.setState(r === 'dismissed' ? { buyBusy: false } : { buyBusy: false, enrolled: s.enrolled.concat([cid]), route: 'learning' }))
+          .catch(e => this.setState({ buyBusy: false, buyError: e.message }));
+      },
 
       contactInfo: [
         { k: 'Company', v: 'Protocore Systems Pvt. Ltd.' },
@@ -1006,16 +1032,28 @@ class Component extends DCLogic {
       sent: s.sent, enquiryId: s.enquiryId,
       sendEnquiry: () => this.setState({ sent: true, enquiryId: 'ENQ-0' + (232 + Math.floor(Math.random() * 9)) }),
 
-      lEmail: s.lEmail, lPass: s.lPass, onLEmail: this.onInput('lEmail'), onLPass: this.onInput('lPass'),
-      loginBtn: s.authBusy ? 'Signing in…' : 'Sign in',
+      lEmail: s.lEmail, lPass: s.lPass, lName: s.lName, onLEmail: this.onInput('lEmail'), onLPass: this.onInput('lPass'), onLName: this.onInput('lName'),
+      isSignUp: s.authMode === 'signup', isSignIn: s.authMode !== 'signup',
+      authTitle: s.authMode === 'signup' ? 'Create your account' : 'Sign in to Protocore',
+      loginBtn: s.authBusy ? 'Please wait…' : (s.authMode === 'signup' ? 'Create account' : 'Sign in'),
+      authSwitchText: s.authMode === 'signup' ? 'Already have an account? Sign in' : 'New here? Create an account',
+      toggleAuthMode: () => this.setState({ authMode: s.authMode === 'signup' ? 'signin' : 'signup', authError: '' }),
       authError: s.authError, authNote: s.authNote,
       doLogin: () => {
         if (s.authBusy) { return; }
         if (!this.fb) { this.setState({ authError: 'Sign-in is still loading. Try again in a moment.', authNote: '' }); return; }
         if (!this.fb.configured) { this.setState({ authError: 'Sign-in is not set up yet.', authNote: '' }); return; }
         if (!s.lEmail.trim() || !s.lPass) { this.setState({ authError: 'Enter your email and password.', authNote: '' }); return; }
+        const signup = s.authMode === 'signup';
+        if (signup && !s.lName.trim()) { this.setState({ authError: 'Enter your name.', authNote: '' }); return; }
         this.setState({ authBusy: true, authError: '', authNote: '' });
-        this.fb.signIn(s.lEmail, s.lPass).catch(e => this.setState({ authBusy: false, authError: e.message }));
+        (signup ? this.fb.signUp(s.lName, s.lEmail, s.lPass) : this.fb.signIn(s.lEmail, s.lPass))
+          .catch(e => this.setState({ authBusy: false, authError: e.message }));
+      },
+      doGoogle: () => {
+        if (s.authBusy || !this.fb || !this.fb.configured) { return; }
+        this.setState({ authBusy: true, authError: '', authNote: '' });
+        this.fb.signInWithGoogle().catch(e => this.setState({ authBusy: false, authError: e.message }));
       },
       forgotPassword: () => {
         if (!this.fb || !this.fb.configured) { this.setState({ authError: 'Sign-in is not set up yet.', authNote: '' }); return; }

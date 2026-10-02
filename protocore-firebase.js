@@ -28,7 +28,7 @@ export const configured = !String(firebaseConfig.apiKey || '').includes('REPLACE
 
 const app = configured ? initializeApp(firebaseConfig) : null;
 const auth = app ? getAuth(app) : null;
-const db = app ? getFirestore(app) : null;
+export const db = app ? getFirestore(app) : null;
 
 const friendly = (e) => {
   const code = (e && e.code) || '';

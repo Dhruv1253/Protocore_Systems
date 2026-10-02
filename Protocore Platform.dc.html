@@ -719,6 +719,38 @@
             </div>
           </sc-for>
         </div>
+        <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+          <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">
+            <span>Course sales</span><span>{{ salesCount }} sales · {{ salesRevenue }}</span>
+          </div>
+          <div style="padding:18px 22px;border-bottom:1px solid #EAECF0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+            <sc-for list="{{ salesByCourse }}" as="c" hint-placeholder-count="4">
+              <div style="background:#F9FAFB;border:1px solid #E4E7EC;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+                <div style="font:500 13.5px/1.3 Manrope,sans-serif">{{ c.title }}</div>
+                <div style="display:flex;justify-content:space-between;font:400 11.5px/1 'IBM Plex Mono',monospace;color:#667085"><span>{{ c.count }}</span><span style="color:#0F1720">{{ c.revenue }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="overflow-x:auto">
+            <div style="min-width:860px">
+              <div style="display:grid;grid-template-columns:110px minmax(180px,1fr) minmax(220px,1.3fr) 90px 190px;gap:16px;padding:12px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">
+                <span>Date</span><span>Student</span><span>Course</span><span style="text-align:right">Amount</span><span>Razorpay payment</span>
+              </div>
+              <sc-if value="{{ noSales }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:22px;font:400 13px/1.5 Manrope,sans-serif;color:#667085">No course sales yet.</div>
+              </sc-if>
+              <sc-for list="{{ salesRows }}" as="r" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:110px minmax(180px,1fr) minmax(220px,1.3fr) 90px 190px;gap:16px;padding:14px 22px;border-bottom:1px solid #F0F2F5;font:400 13px/1.35 'IBM Plex Mono',monospace;align-items:center">
+                  <span>{{ r.date }}</span>
+                  <span style="overflow-wrap:anywhere">{{ r.email }}</span>
+                  <span style="font-family:Manrope,sans-serif;font-size:14px">{{ r.course }}</span>
+                  <span style="text-align:right">{{ r.amt }}</span>
+                  <span style="color:#667085;overflow-wrap:anywhere">{{ r.paymentId }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
           <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Recent enquiries</div>
           <div style="overflow-x:auto">
@@ -784,6 +816,8 @@ class Component extends DCLogic {
     saved: false, savedId: '', savingExp: false, saveError: '',
     // Paid course ids, loaded from Firestore `enrollments` after sign-in. Lesson progress is not tracked yet.
     enrolled: [], progress: {},
+    // Every course purchase (founders only), from protocore-sales.js.
+    sales: [],
     // Founders and expenses are loaded from Firestore after sign-in (see protocore-firebase.js).
     founders: [],
     categories: ['Travel', 'Food', 'Office', 'Office Rent', 'Equipment', 'Software', 'Marketing', 'Logistics', 'Client Meeting', 'Internet', 'Utilities', 'Investment', 'Miscellaneous'],
@@ -807,21 +841,20 @@ class Component extends DCLogic {
     c1: './all-in-1.jpeg', c2: './VFD.png',
     c3: './PLC.png', c4: './IoT_Monitoring_Dashboard.png'
   };
-  monthlyRevenue = { '2026-04': 68400, '2026-05': 74900, '2026-06': 61200, '2026-07': 88500, '2026-08': 79600, '2026-09': 52300 };
-
   componentDidMount() {
     if (this.fbStarted) { return; }
     this.fbStarted = true;
     const privateRoutes = ['dash', 'add', 'founders', 'admin'];
-    import('./protocore-firebase.js').then(fb => {
+    Promise.all([import('./protocore-firebase.js'), import('./protocore-sales.js')]).then(([fb, sales]) => {
       this.fb = fb;
+      this.sales = sales;
       if (!fb.configured) { return; }
       this.unsubUser = fb.watchUser((u, err) => {
         if (this.unsubData) { this.unsubData(); this.unsubData = null; }
         const s = this.state;
         if (!u) {
           this.setState(Object.assign(
-            { authBusy: false, authError: err || s.authError, founders: [], expenses: [], enrolled: [] },
+            { authBusy: false, authError: err || s.authError, founders: [], expenses: [], enrolled: [], sales: [] },
             s.role ? { role: null, uid: null, email: null, route: privateRoutes.concat(['learning']).indexOf(s.route) >= 0 ? 'home' : s.route } : {}
           ));
           return;
@@ -847,7 +880,8 @@ class Component extends DCLogic {
             category: e.category || 'Miscellaneous', desc: e.desc || '', method: e.method || '', status: e.status || 'Submitted'
           }))
         }));
-        this.unsubData = () => { stopFounders(); stopExpenses(); stopEnrolled(); };
+        const stopSales = sales.watchSales(list => this.setState({ sales: list }));
+        this.unsubData = () => { stopFounders(); stopExpenses(); stopEnrolled(); stopSales(); };
         this.setState(signedIn);
       });
     }).catch(() => this.setState({ authError: 'Could not load sign-in. Check your connection and reload.' }));
@@ -884,6 +918,8 @@ class Component extends DCLogic {
     const canDelete = !!me && !!me.admin && s.role === 'ADMIN';
     const product = this.products.find(p => p.id === s.pid) || this.products[0];
     const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
+    const sales = this.sales ? this.sales.summarize(s.sales, this.courses) : { count: 0, revenue: 0, byMonth: {}, byCourse: [] };
+    const months = this.sales ? this.sales.lastMonths(6) : [];
     // Investment entries are money founders put in; every other category is company spending paid from that pool.
     const isInvestment = e => e.category === 'Investment';
     const spending = s.expenses.filter(e => !isInvestment(e));
@@ -944,17 +980,16 @@ class Component extends DCLogic {
       goFinance: this.nav('finance'),
       financeLocked: !canRecord, financeOpen: canRecord, fiWho: me ? me.name.toUpperCase() + ' · ' + s.role : '',
       financeKpis: (() => {
-        const rev = Object.keys(this.monthlyRevenue).reduce((a, k) => a + this.monthlyRevenue[k], 0);
-        const net = rev - total;
+        const net = sales.revenue - total;
         return [
-          { k: 'Course revenue', v: this.inr(rev), sub: 'LAST 6 MONTHS', color: '#0F1720' },
+          { k: 'Course revenue', v: this.inr(sales.revenue), sub: sales.count + ' SALES · ALL TIME', color: '#0F1720' },
           { k: 'Company expenses', v: this.inr(total), sub: spending.length + ' ENTRIES', color: '#0F1720' },
           { k: 'Net position', v: this.inr(net), sub: net >= 0 ? 'SURPLUS' : 'DEFICIT', color: net >= 0 ? '#067647' : '#912018' },
           { k: 'Awaiting approval', v: this.inr(pending), sub: 'NOT YET REIMBURSED', color: '#0F1720' }
         ];
       })(),
-      financeRows: Object.keys(this.monthlyRevenue).sort().reverse().map(k => {
-        const rv = this.monthlyRevenue[k];
+      financeRows: months.map(k => {
+        const rv = sales.byMonth[k] || 0;
         const ex = spending.filter(e => e.date.slice(0, 7) === k).reduce((a, e) => a + e.amount, 0);
         const n = rv - ex;
         return {
@@ -965,7 +1000,7 @@ class Component extends DCLogic {
       }),
       goAddExpense: this.nav('add'), goFounders: this.nav('founders'), goLearning: this.nav('learning'),
       logout: () => {
-        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [], enrolled: [] });
+        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [], enrolled: [], sales: [] });
         if (this.fb) { this.fb.signOut(); }
       },
       appNav: appNavDefs.map(n => ({
@@ -1151,10 +1186,17 @@ class Component extends DCLogic {
         { k: 'Expenses', v: s.expenses.length, sub: this.inr(total) + ' recorded to date', open: this.nav('dash') },
         { k: 'Enquiries', v: s.enquiries.length, sub: 'Product, course, partnership, support', open: this.nav('admin') },
         { k: 'Users', v: 214, sub: 'Roles: admin, founder, employee, student', open: this.nav('admin') },
-        { k: 'Orders', v: 96, sub: 'Razorpay, server-verified', open: this.nav('admin') },
-        { k: 'Revenue', v: this.inr(486400), sub: 'Course sales, last 12 months', open: this.nav('admin') }
+        { k: 'Course sales', v: sales.count, sub: 'Razorpay, server-verified', open: this.nav('admin') },
+        { k: 'Revenue', v: this.inr(sales.revenue), sub: 'Course sales, all time', open: this.nav('finance') }
       ],
-      enquiries: s.enquiries
+      enquiries: s.enquiries,
+
+      salesCount: sales.count, salesRevenue: this.inr(sales.revenue), noSales: sales.count === 0,
+      salesByCourse: sales.byCourse.map(c => ({ title: c.title, count: c.count + (c.count === 1 ? ' SALE' : ' SALES'), revenue: this.inr(c.revenue) })),
+      salesRows: s.sales.map(x => {
+        const c = this.courses.find(cc => cc.id === x.courseId);
+        return { date: x.date || '—', email: x.email, course: c ? c.title : x.courseId, amt: this.inr(x.amount), paymentId: x.paymentId };
+      })
     };
   }
 }

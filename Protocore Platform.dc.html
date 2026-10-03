@@ -915,7 +915,7 @@ class Component extends DCLogic {
     ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(ev => window.addEventListener(ev, this.onActivity, { passive: true, capture: true }));
     document.addEventListener('visibilitychange', this.onVisible);
     this.idleTimer = setInterval(() => this.checkIdle(), 15000);
-    const privateRoutes = ['dash', 'add', 'founders', 'admin'];
+    const privateRoutes = ['dash', 'add', 'founders', 'admin', 'finance'];
     this.onPopState = () => {
       const next = this.routeFromHash();
       const signedOutPrivate = !this.state.role && privateRoutes.concat(['learning']).indexOf(next.route) >= 0;
@@ -1070,7 +1070,7 @@ class Component extends DCLogic {
         { label: 'Home', route: 'home', also: [] }, { label: 'Products', route: 'products', also: ['product'] },
         { label: 'Courses', route: 'courses', also: ['course'] }, { label: 'Contact', route: 'contact', also: [] },
         { label: 'Finance', route: 'finance', also: [] }
-      ].map(t => {
+      ].filter(t => t.route !== 'finance' || s.role === 'FOUNDER' || s.role === 'ADMIN').map(t => {
         const on = s.route === t.route || t.also.indexOf(s.route) >= 0;
         return { label: t.label, open: this.nav(t.route), current: on ? 'page' : 'false', fg: on ? '#D81324' : '#0F1720', bar: on ? '#D81324' : 'transparent', weight: on ? 600 : 500 };
       }),

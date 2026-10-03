@@ -876,9 +876,41 @@ class Component extends DCLogic {
     window.scrollTo(0, 0);
   }
 
+  // Auto sign-out after 5 minutes without mouse, keyboard, touch or scroll activity.
+  // The last-activity time is shared through localStorage so activity in any tab counts and a stale session ends on return.
+  idleLimitMs = 5 * 60 * 1000;
+  lastActive() {
+    try { return Number(window.localStorage.getItem('pcLastActive')) || this.lastActiveMem || 0; }
+    catch (e) { return this.lastActiveMem || 0; }
+  }
+  markActive() {
+    const now = Date.now();
+    if (now - (this.lastActiveMem || 0) < 5000) { return; }
+    this.lastActiveMem = now;
+    try { window.localStorage.setItem('pcLastActive', String(now)); } catch (e) {}
+  }
+  isIdle() { const t = this.lastActive(); return !!t && Date.now() - t > this.idleLimitMs; }
+  idleSignOut() {
+    this.setState({
+      role: null, email: null, uid: null, route: 'login', authMode: 'signin', authBusy: false, authError: '',
+      authNote: 'You were signed out after 5 minutes of inactivity. Sign in again to continue.',
+      founders: [], expenses: [], enrolled: [], sales: []
+    });
+    if (this.fb) { this.fb.signOut(); }
+  }
+  checkIdle() {
+    // Never during checkout: the Razorpay window is an iframe, so its activity doesn't reach this page.
+    if (this.state.role && !this.state.buyBusy && this.isIdle()) { this.idleSignOut(); }
+  }
+
   componentDidMount() {
     if (this.fbStarted) { return; }
     this.fbStarted = true;
+    this.onActivity = () => this.markActive();
+    this.onVisible = () => { if (document.visibilityState === 'visible') { this.checkIdle(); } };
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(ev => window.addEventListener(ev, this.onActivity, { passive: true, capture: true }));
+    document.addEventListener('visibilitychange', this.onVisible);
+    this.idleTimer = setInterval(() => this.checkIdle(), 15000);
     const privateRoutes = ['dash', 'add', 'founders', 'admin'];
     this.onPopState = () => {
       const next = this.routeFromHash();
@@ -903,6 +935,8 @@ class Component extends DCLogic {
           ));
           return;
         }
+        // A session left open past the idle limit (tab closed, laptop asleep) ends as soon as the site is reopened.
+        if (this.isIdle()) { this.idleSignOut(); return; }
         const stopEnrolled = fb.watchEnrollments(u.uid, ids => this.setState({ enrolled: ids }));
         const next = s.route !== 'login' ? s.route : (s.afterLogin || (u.role === 'STUDENT' ? 'learning' : 'dash'));
         const signedIn = { authBusy: false, authError: '', authNote: '', lPass: '', showPass: false, afterLogin: null, role: u.role, uid: u.uid, email: u.name, route: next };
@@ -933,6 +967,12 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     if (this.onPopState) { window.removeEventListener('popstate', this.onPopState); this.onPopState = null; }
+    if (this.onActivity) {
+      ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(ev => window.removeEventListener(ev, this.onActivity, { capture: true }));
+      document.removeEventListener('visibilitychange', this.onVisible);
+      clearInterval(this.idleTimer);
+      this.onActivity = null;
+    }
     if (this.unsubData) { this.unsubData(); this.unsubData = null; }
     if (this.unsubUser) { this.unsubUser(); this.unsubUser = null; }
     this.fbStarted = false;

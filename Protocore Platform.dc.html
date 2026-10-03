@@ -841,10 +841,46 @@ class Component extends DCLogic {
     c1: './all-in-1.jpeg', c2: './VFD.png',
     c3: './PLC.png', c4: './IoT_Monitoring_Dashboard.png'
   };
+  // Browser history: every page has a #/route[/id] address, so Back, Forward and reload work.
+  routeHash(s) {
+    if (s.route === 'home') return '#/';
+    if (s.route === 'product') return '#/product/' + s.pid;
+    if (s.route === 'course') return '#/course/' + s.cid;
+    return '#/' + s.route;
+  }
+
+  routeFromHash() {
+    const parts = window.location.hash.replace(/^#\/?/, '').split('/');
+    const route = parts[0] || 'home', id = parts[1];
+    const known = ['home', 'products', 'product', 'courses', 'course', 'contact', 'finance', 'login', 'dash', 'add', 'founders', 'learning', 'admin'];
+    if (known.indexOf(route) < 0) return { route: 'home' };
+    if (route === 'product') return this.products.some(p => p.id === id) ? { route, pid: id } : { route: 'products' };
+    if (route === 'course') return this.courses.some(c => c.id === id) ? { route, cid: id } : { route: 'courses' };
+    return { route };
+  }
+
+  componentDidUpdate() {
+    const h = this.routeHash(this.state);
+    if (window.location.hash === h) { return; }
+    // Don't leave the sign-in page in history once the user is past it.
+    const fromLogin = window.location.hash === '#/login';
+    window.history[fromLogin ? 'replaceState' : 'pushState'](null, '', h);
+    window.scrollTo(0, 0);
+  }
+
   componentDidMount() {
     if (this.fbStarted) { return; }
     this.fbStarted = true;
     const privateRoutes = ['dash', 'add', 'founders', 'admin'];
+    this.onPopState = () => {
+      const next = this.routeFromHash();
+      const signedOutPrivate = !this.state.role && privateRoutes.concat(['learning']).indexOf(next.route) >= 0;
+      this.setState(signedOutPrivate ? { route: 'home' } : next);
+    };
+    window.addEventListener('popstate', this.onPopState);
+    const start = this.routeFromHash();
+    window.history.replaceState(null, '', this.routeHash(Object.assign({}, this.state, start)));
+    this.setState(start);
     Promise.all([import('./protocore-firebase.js'), import('./protocore-sales.js')]).then(([fb, sales]) => {
       this.fb = fb;
       this.sales = sales;
@@ -855,7 +891,7 @@ class Component extends DCLogic {
         if (!u) {
           this.setState(Object.assign(
             { authBusy: false, authError: err || s.authError, founders: [], expenses: [], enrolled: [], sales: [] },
-            s.role ? { role: null, uid: null, email: null, route: privateRoutes.concat(['learning']).indexOf(s.route) >= 0 ? 'home' : s.route } : {}
+            { role: null, uid: null, email: null, route: privateRoutes.concat(['learning']).indexOf(s.route) >= 0 ? 'home' : s.route }
           ));
           return;
         }
@@ -888,6 +924,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    if (this.onPopState) { window.removeEventListener('popstate', this.onPopState); this.onPopState = null; }
     if (this.unsubData) { this.unsubData(); this.unsubData = null; }
     if (this.unsubUser) { this.unsubUser(); this.unsubUser = null; }
     this.fbStarted = false;

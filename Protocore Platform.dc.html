@@ -19,6 +19,56 @@
   input, select, textarea, button { font-family: inherit; border-radius: 10px; }
   input:focus, select:focus, textarea:focus { outline: 2px solid #F7C7CB; outline-offset: -1px; border-color: #D81324; }
   ::placeholder { color: #98A2B3; }
+  html, body { overflow-x: hidden; }
+  img { max-width: 100%; }
+
+  /* ---- Responsive: tablet (≤ 1024px) ---- */
+  @media (max-width: 1024px) {
+    .pc-tagline { display: none !important; }
+    .pc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .pc-course { grid-template-columns: minmax(0, 1fr) !important; gap: 32px !important; }
+    .pc-course > aside { order: -1; }
+    .pc-course > aside > div { position: static !important; max-width: 560px; }
+  }
+
+  /* ---- Responsive: phone (≤ 760px) ---- */
+  @media (max-width: 760px) {
+    .pc-head { padding: 8px 16px !important; min-height: 0 !important; gap: 8px 12px !important; flex-wrap: wrap !important; }
+    .pc-head img { height: 40px !important; width: 92px !important; }
+    .pc-nav { display: contents !important; }
+    .pc-auth { order: 1; margin-left: auto !important; }
+    .pc-auth-who { display: none !important; }
+    .pc-auth, .pc-auth > div { padding-left: 0 !important; border-left: 0 !important; }
+    .pc-links { order: 2; width: calc(100% + 16px); display: flex; flex-wrap: nowrap !important; overflow-x: auto; margin: 0 -8px; padding-bottom: 2px; scrollbar-width: none; }
+    .pc-links::-webkit-scrollbar { display: none; }
+    .pc-links button { flex: 0 0 auto; white-space: nowrap; padding: 10px 10px !important; }
+    .pc-appnav { padding: 0 16px !important; }
+
+    /* Every page-width container (max-width 1320px) gets phone-sized side padding. */
+    main [style*="max-width:1320px"], main [style*="max-width: 1320px"], footer > div { padding-left: 16px !important; padding-right: 16px !important; }
+    .pc-hero-copy { padding: 44px 0 8px !important; gap: 20px !important; }
+    .pc-hero-copy p { font-size: 15.5px !important; }
+    .pc-hero-ctas { width: 100%; }
+    .pc-hero-ctas button { flex: 1 1 0; padding: 14px 16px !important; }
+    .pc-hero-3d { padding: 0 0 24px !important; }
+    .pc-hero-3d x-import { min-height: 300px !important; }
+    .pc-stats > div { padding: 18px 16px !important; }
+    .pc-stats > div > div:first-child { font-size: 22px !important; }
+
+    main h1 { font-size: clamp(26px, 7.4vw, 34px) !important; }
+    main h2 { font-size: clamp(22px, 6.2vw, 28px) !important; }
+    .pc-hero-copy h1 { font-size: 40px !important; }
+    .pc-hero-copy h1 > span:last-child { font-size: 28px !important; }
+
+    .pc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+    .pc-kpis > div { padding: 14px !important; border-radius: 14px !important; }
+    .pc-kpis > div > div:nth-child(2) { font-size: 21px !important; margin-top: 8px !important; }
+    .pc-kpis > div > div:nth-child(3) { font-size: 9.5px !important; line-height: 1.4 !important; }
+
+    .pc-learn-card { grid-template-columns: 88px minmax(0, 1fr) !important; gap: 14px 16px !important; padding: 18px !important; }
+    .pc-learn-card > div:first-child { width: 88px !important; height: 60px !important; }
+    .pc-learn-card > button { grid-column: 1 / -1; width: 100%; }
+  }
 </style>
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 </helmet>
@@ -26,29 +76,33 @@
 <div style="min-height:100vh;display:flex;flex-direction:column;background:#F7F8FA">
 
   <header style="position:sticky;top:0;z-index:20;background:#F7F8FA;border-bottom:1px solid #E4E7EC">
-    <div style="max-width:1320px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;min-height:68px;padding-top:10px;padding-bottom:10px">
+    <div class="pc-head" style="max-width:1320px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;min-height:68px;padding-top:10px;padding-bottom:10px">
       <div onClick="{{ goHome }}" style="display:flex;align-items:center;gap:12px;cursor:pointer">
         <img src="./pc-logo.png" alt="Protocore System" style="height: 49px; width: 113px; display: block; mix-blend-mode: multiply">
-        <div style="font: 400 9px/1.5 'IBM Plex Mono',monospace; letter-spacing: .14em; color: #667085; max-width: 270px; padding-left: 14px; border-left: 1px solid #E4E7EC; height: 15px; width: 252px; font-size: 8px">CONTROL PANELS | AUTOMATION | ACADEMY</div>
+        <div class="pc-tagline" style="font: 400 9px/1.5 'IBM Plex Mono',monospace; letter-spacing: .14em; color: #667085; padding-left: 14px; border-left: 1px solid #E4E7EC; white-space: nowrap; font-size: 8px">CONTROL PANELS | AUTOMATION | ACADEMY</div>
       </div>
-      <nav style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-        <sc-for list="{{ topNav }}" as="t" hint-placeholder-count="5">
-          <button onClick="{{ t.open }}" aria-current="{{ t.current }}" style="background:none;border:0;padding:8px 12px;font:{{ t.weight }} 13.5px Manrope,sans-serif;color:{{ t.fg }};box-shadow:inset 0 -2px 0 {{ t.bar }};cursor:pointer" style-hover="color:#D81324">{{ t.label }}</button>
-        </sc-for>
-        <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
-          <button onClick="{{ goLogin }}" style="margin-left:8px;background:#0F1720;color:#F7F8FA;border:0;padding:11px 20px;font:600 13px Manrope,sans-serif;cursor:pointer">Login</button>
-        </sc-if>
-        <sc-if value="{{ loggedIn }}">
-          <div style="display:flex;align-items:center;gap:10px;margin-left:8px;padding-left:14px;border-left:1px solid #E4E7EC">
-            <div style="font:500 10px/1.5 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#667085;text-align:right">{{ roleLabel }}<br>{{ userEmail }}</div>
-            <button onClick="{{ logout }}" style="background:none;border:1px solid #E4E7EC;padding:9px 14px;font:500 12px Manrope,sans-serif;color:#0F1720;cursor:pointer">Log out</button>
-          </div>
-        </sc-if>
+      <nav class="pc-nav" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+        <div class="pc-links" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          <sc-for list="{{ topNav }}" as="t" hint-placeholder-count="5">
+            <button onClick="{{ t.open }}" aria-current="{{ t.current }}" style="background:none;border:0;padding:8px 12px;font:{{ t.weight }} 13.5px Manrope,sans-serif;color:{{ t.fg }};box-shadow:inset 0 -2px 0 {{ t.bar }};cursor:pointer" style-hover="color:#D81324">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <div class="pc-auth" style="display:flex;align-items:center">
+          <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ goLogin }}" style="margin-left:8px;background:#0F1720;color:#F7F8FA;border:0;padding:11px 20px;font:600 13px Manrope,sans-serif;cursor:pointer">Login</button>
+          </sc-if>
+          <sc-if value="{{ loggedIn }}">
+            <div style="display:flex;align-items:center;gap:10px;margin-left:8px;padding-left:14px;border-left:1px solid #E4E7EC">
+              <div class="pc-auth-who" style="font:500 10px/1.5 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#667085;text-align:right">{{ roleLabel }}<br>{{ userEmail }}</div>
+              <button onClick="{{ logout }}" style="background:none;border:1px solid #E4E7EC;padding:9px 14px;font:500 12px Manrope,sans-serif;color:#0F1720;cursor:pointer">Log out</button>
+            </div>
+          </sc-if>
+        </div>
       </nav>
     </div>
     <sc-if value="{{ loggedIn }}">
       <div style="background:#0F1720;color:#F7F8FA">
-        <div style="max-width:1320px;margin:0 auto;padding:0 24px;display:flex;gap:2px;overflow-x:auto">
+        <div class="pc-appnav" style="max-width:1320px;margin:0 auto;padding:0 24px;display:flex;gap:2px;overflow-x:auto">
           <sc-for list="{{ appNav }}" as="n" hint-placeholder-count="4">
             <button onClick="{{ n.open }}" style="background:{{ n.bg }};color:{{ n.fg }};border:0;padding:13px 16px;font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;cursor:pointer">{{ n.label }}</button>
           </sc-for>
@@ -62,23 +116,24 @@
     <!-- ============ HOME ============ -->
     <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
       <section style="background:#0B0F14;color:#F7F8FA;background-image:radial-gradient(120% 90% at 78% 18%, rgba(216,19,36,.16) 0%, rgba(11,15,20,0) 62%)">
-        <div style="max-width: 1320px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit,minmax(330px,1fr)); gap: 36px; align-items: center; position: relative">
-          <div style="padding:78px 0;display:flex;flex-direction:column;gap:26px;align-items:flex-start">
+        <div style="max-width: 1320px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit,minmax(min(330px,100%),1fr)); gap: 36px; align-items: center; position: relative">
+          <div class="pc-hero-copy" style="padding:78px 0;display:flex;flex-direction:column;gap:26px;align-items:flex-start;min-width:0">
             <div style="display:flex;align-items:center;gap:10px;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#FF8A93">
               <span style="width:6px;height:6px;border-radius:999px;background:#D81324;display:block"></span>EST. 2025 · NASHIK, INDIA
             </div>
             <h1 style="margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .3em; row-gap: 6px; font: 700 clamp(38px,4.9vw,64px)/1.0 Manrope,sans-serif; letter-spacing: -.03em"><span style="color: #7B0000">Systems</span><span style="color: #F7F8FA; font-size: clamp(28px,3.1vw,40px); text-wrap: balance">Engineered to Specifications</span></h1>
             
-            <p style="margin:0;max-width:46ch;font:400 17px/1.65 Manrope,sans-serif;color:#AAB4C0;text-wrap:pretty">We design and build control panels, automation solutions, pump &amp; HVAC systems, and remote monitoring technologies — backed by practical engineering expertise.</p><div style="display:flex;gap:12px;flex-wrap:wrap">
-              
-              
-            </div><button onClick="{{ goProducts }}" style="background:#F7F8FA;color:#0B0F14;border:0;padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">Explore Products</button><button onClick="{{ goCourses }}" style="background:transparent;color:#F7F8FA;border:1px solid rgba(255,255,255,.28);padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">View Courses</button>
+            <p style="margin:0;max-width:46ch;font:400 17px/1.65 Manrope,sans-serif;color:#AAB4C0;text-wrap:pretty">We design and build control panels, automation solutions, pump &amp; HVAC systems, and remote monitoring technologies — backed by practical engineering expertise.</p>
+            <div class="pc-hero-ctas" style="display:flex;gap:12px;flex-wrap:wrap">
+              <button onClick="{{ goProducts }}" style="background:#F7F8FA;color:#0B0F14;border:0;padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">Explore Products</button>
+              <button onClick="{{ goCourses }}" style="background:transparent;color:#F7F8FA;border:1px solid rgba(255,255,255,.28);padding:15px 26px;font:600 14px Manrope,sans-serif;cursor:pointer">View Courses</button>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;justify-content:center;padding:24px 0 40px">
+          <div class="pc-hero-3d" style="display:flex;align-items:center;justify-content:center;padding:24px 0 40px;min-width:0">
             <x-import component-from-global-scope="panel-3d" from="./panel-3d.js" hint-size="100%,460px" style="width: 100%; min-height: 460px; padding-top: 0px; padding-bottom: 0px; border-width: 1px; border-style: solid; border-color: #000000"></x-import>
           </div></div>
         <div style="max-width:1320px;margin:0 auto;padding:0 24px">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:rgba(255,255,255,.1);border-top:1px solid rgba(255,255,255,.1)">
+          <div class="pc-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:1px;background:rgba(255,255,255,.1);border-top:1px solid rgba(255,255,255,.1)">
             <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
               <div style="background:#0B0F14;padding:24px 22px">
                 <div style="font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ s.v }}</div>
@@ -112,7 +167,7 @@
       </section>
 
       <section style="background:#0F1720;color:#F7F8FA">
-        <div style="max-width:1320px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:48px;align-items:center">
+        <div style="max-width:1320px;margin:0 auto;padding:64px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:48px;align-items:center">
           <div style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
             <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#FF9DA4">PC ACADEMY</div>
             <h2 style="margin:0;font:700 clamp(28px,3vw,40px)/1.08 Manrope,sans-serif;letter-spacing:-.02em;max-width:24ch">Panel design and automation training, from the people who build them.</h2>
@@ -171,7 +226,7 @@
         </div>
       </section>
       <section style="max-width:1320px;margin:0 auto;padding:0 24px">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))">
           <div style="padding:52px 48px 52px 0;display:flex;flex-direction:column;gap:22px;align-items:flex-start">
             <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#D81324">{{ product.category }}</div>
             <h1 style="margin:0;font:700 clamp(30px,3.6vw,48px)/1.03 Manrope,sans-serif;letter-spacing:-.025em">{{ product.name }}</h1>
@@ -184,7 +239,7 @@
           </div>
         </div>
       </section>
-      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px">
         <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:16px">
           <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Key features</div>
           <sc-for list="{{ product.features }}" as="f" hint-placeholder-count="5">
@@ -264,7 +319,7 @@
           <span onClick="{{ goCourses }}" style="cursor:pointer;color:#D81324">PC ACADEMY</span> / {{ course.level }}
         </div>
       </section>
-      <section style="max-width:1320px;margin:0 auto;padding:44px 24px 80px;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:48px">
+      <section class="pc-course" style="max-width:1320px;margin:0 auto;padding:44px 24px 80px;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:48px">
         <div style="display:flex;flex-direction:column;gap:34px;min-width:0">
           <div style="display:flex;flex-direction:column;gap:16px">
             <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.06 Manrope,sans-serif;letter-spacing:-.025em">{{ course.title }}</h1>
@@ -275,7 +330,7 @@
           </div>
           <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:16px">
             <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">What you will learn</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px">
               <sc-for list="{{ course.learn }}" as="l" hint-placeholder-count="4">
                 <div style="display:flex;gap:10px;font:400 14.5px/1.5 Manrope,sans-serif;color:#344054"><span style="color:#D81324">—</span><span>{{ l }}</span></div>
               </sc-for>
@@ -297,7 +352,7 @@
               </div>
             </sc-for>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px">
             <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:12px">
               <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Requirements</div>
               <sc-for list="{{ course.reqs }}" as="r" hint-placeholder-count="3">
@@ -348,7 +403,7 @@
 
     <!-- ============ CONTACT ============ -->
     <sc-if value="{{ isContact }}">
-      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px">
+      <section style="max-width:1320px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:56px">
         <div style="display:flex;flex-direction:column;gap:28px">
           <div>
             <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">CONTACT</div>
@@ -365,7 +420,7 @@
         </div>
         <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:30px;display:flex;flex-direction:column;gap:16px">
           <div style="font:600 19px/1 Manrope,sans-serif">Enquiry form</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:12px">
             <input value="{{ fName }}" onChange="{{ onFName }}" placeholder="Name" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
             <input value="{{ fEmail }}" onChange="{{ onFEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
             <input value="{{ fPhone }}" onChange="{{ onFPhone }}" placeholder="Phone" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:13px 14px;font:400 14px Manrope,sans-serif">
@@ -404,7 +459,7 @@
             </div>
             <button onClick="{{ logout }}" style="background:transparent;color:#0F1720;border:1px solid #E4E7EC;padding:12px 18px;font:600 13px Manrope,sans-serif;white-space:nowrap;cursor:pointer">Sign out</button>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <div class="pc-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px">
             <sc-for list="{{ financeKpis }}" as="k" hint-placeholder-count="4">
               <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px">
                 <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ k.k }}</div>
@@ -446,7 +501,7 @@
 
     <!-- ============ LOGIN ============ -->
     <sc-if value="{{ isLogin }}">
-      <section style="max-width:1320px;margin:0 auto;padding:72px 24px 96px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px;align-items:start">
+      <section style="max-width:1320px;margin:0 auto;padding:72px 24px 96px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:56px;align-items:start">
         <div style="display:flex;flex-direction:column;gap:18px">
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">SIGN IN</div>
           <h1 style="margin:0;font:700 clamp(28px,3.2vw,42px)/1.05 Manrope,sans-serif;letter-spacing:-.025em;max-width:20ch">{{ authTitle }}</h1>
@@ -498,7 +553,7 @@
             <button onClick="{{ goAddExpense }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 22px;font:600 13.5px Manrope,sans-serif;cursor:pointer">Record expense</button>
           </sc-if>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <div class="pc-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px">
           <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
             <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px">
               <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ k.k }}</div>
@@ -507,7 +562,7 @@
             </div>
           </sc-for>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px">
           <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
             <div style="display:flex;justify-content:space-between;align-items:baseline">
               <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Investment by founder</div>
@@ -583,7 +638,7 @@
         </sc-if>
         <sc-if value="{{ canRecord }}" hint-placeholder-val="{{ true }}">
         <div style="border:1px solid #0F1720;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:28px;display:flex;flex-direction:column;gap:14px">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px">
             <label style="display:flex;flex-direction:column;gap:7px">
               <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">Founder</span>
               <input value="{{ currentFounder }}" readonly style="background:#EAECF0;border:1px solid #E4E7EC;padding:12px;font:400 14px Manrope,sans-serif;color:#475467">
@@ -670,7 +725,7 @@
         </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:26px;display:flex;flex-direction:column;gap:18px">
           <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Investment by founder · {{ periodLabel }}</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px">
             <sc-for list="{{ byFounder }}" as="f" hint-placeholder-count="3">
               <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px">
                 <div style="font:500 12px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#667085">{{ f.name }}</div>
@@ -692,7 +747,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:16px">
           <sc-for list="{{ enrolledCourses }}" as="e" hint-placeholder-count="2">
-            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:24px;display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:24px;align-items:center">
+            <div class="pc-learn-card" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:24px;display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:24px;align-items:center">
               <div role="img" aria-label="{{ e.title }}" style="width:120px;height:78px;border-radius:10px;background-color:#EDF0F4;background-image:url({{ e.img }});background-size:contain;background-position:center;background-repeat:no-repeat"></div>
               <div style="display:flex;flex-direction:column;gap:9px;min-width:0">
                 <div style="font:600 18px/1.2 Manrope,sans-serif">{{ e.title }}</div>
@@ -722,7 +777,7 @@
           <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#667085">ADMIN CONSOLE</div>
           <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Platform management</h1>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:16px">
           <sc-for list="{{ adminTiles }}" as="t" hint-placeholder-count="8">
             <div onClick="{{ t.open }}" style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:22px;cursor:pointer;display:flex;flex-direction:column;gap:8px" style-hover="background:#F9FAFB">
               <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#667085">{{ t.k }}</div>
@@ -735,7 +790,7 @@
           <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">
             <span>Course sales</span><span>{{ salesCount }} sales · {{ salesRevenue }}</span>
           </div>
-          <div style="padding:18px 22px;border-bottom:1px solid #EAECF0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+          <div style="padding:18px 22px;border-bottom:1px solid #EAECF0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px">
             <sc-for list="{{ salesByCourse }}" as="c" hint-placeholder-count="4">
               <div style="background:#F9FAFB;border:1px solid #E4E7EC;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
                 <div style="font:500 13.5px/1.3 Manrope,sans-serif">{{ c.title }}</div>

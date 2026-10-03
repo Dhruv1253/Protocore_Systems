@@ -32,11 +32,9 @@
         <div style="font: 400 9px/1.5 'IBM Plex Mono',monospace; letter-spacing: .14em; color: #667085; max-width: 270px; padding-left: 14px; border-left: 1px solid #E4E7EC; height: 15px; width: 252px; font-size: 8px">CONTROL PANELS | AUTOMATION | ACADEMY</div>
       </div>
       <nav style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-        <button onClick="{{ goHome }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Home</button>
-        <button onClick="{{ goProducts }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Products</button>
-        <button onClick="{{ goCourses }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Courses</button>
-        <button onClick="{{ goContact }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Contact</button>
-        <button onClick="{{ goFinance }}" style="background:none;border:0;padding:8px 12px;font:500 13.5px Manrope,sans-serif;color:#0F1720;cursor:pointer" style-hover="color:#D81324">Finance</button>
+        <sc-for list="{{ topNav }}" as="t" hint-placeholder-count="5">
+          <button onClick="{{ t.open }}" aria-current="{{ t.current }}" style="background:none;border:0;padding:8px 12px;font:{{ t.weight }} 13.5px Manrope,sans-serif;color:{{ t.fg }};box-shadow:inset 0 -2px 0 {{ t.bar }};cursor:pointer" style-hover="color:#D81324">{{ t.label }}</button>
+        </sc-for>
         <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
           <button onClick="{{ goLogin }}" style="margin-left:8px;background:#0F1720;color:#F7F8FA;border:0;padding:11px 20px;font:600 13px Manrope,sans-serif;cursor:pointer">Login</button>
         </sc-if>
@@ -1013,6 +1011,15 @@ class Component extends DCLogic {
       loggedIn: !!s.role, loggedOut: !s.role, roleLabel: s.role, userEmail: s.email,
       goHome: this.nav('home'), goProducts: this.nav('products'), goCourses: this.nav('courses'),
       goContact: this.nav('contact'), goLogin: this.nav('login'), goDash: this.nav('dash'),
+      // Header links; a product or course detail page highlights its parent section.
+      topNav: [
+        { label: 'Home', route: 'home', also: [] }, { label: 'Products', route: 'products', also: ['product'] },
+        { label: 'Courses', route: 'courses', also: ['course'] }, { label: 'Contact', route: 'contact', also: [] },
+        { label: 'Finance', route: 'finance', also: [] }
+      ].map(t => {
+        const on = s.route === t.route || t.also.indexOf(s.route) >= 0;
+        return { label: t.label, open: this.nav(t.route), current: on ? 'page' : 'false', fg: on ? '#D81324' : '#0F1720', bar: on ? '#D81324' : 'transparent', weight: on ? 600 : 500 };
+      }),
       isFinance: s.route === 'finance',
       goFinance: this.nav('finance'),
       financeLocked: !canRecord, financeOpen: canRecord, fiWho: me ? me.name.toUpperCase() + ' · ' + s.role : '',

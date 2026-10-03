@@ -539,6 +539,7 @@
             <select value="{{ fStatus }}" onChange="{{ onFilterStatus }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:9px 12px;font:400 12.5px 'IBM Plex Mono',monospace">
               <sc-for list="{{ statusOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for>
             </select>
+            <button onClick="{{ exportLedger }}" title="Download the rows shown below as a CSV file that opens in Excel" style="background:#0F1720;color:#F7F8FA;border:0;padding:10px 16px;font:600 12.5px Manrope,sans-serif;cursor:pointer;white-space:nowrap">Export to Excel</button>
           </div>
           <div style="overflow-x:auto">
             <div style="min-width:930px">
@@ -1170,6 +1171,20 @@ class Component extends DCLogic {
       byCategory: cats.map(c => ({ name: c.name, amt: this.inr(c.sum), pct: (c.sum / cMax * 100).toFixed(1) + '%' })),
       fFounder: s.fFounder, fCategory: s.fCategory, fStatus: s.fStatus,
       onFilterFounder: this.onInput('fFounder'), onFilterCategory: this.onInput('fCategory'), onFilterStatus: this.onInput('fStatus'),
+      // Downloads the currently filtered ledger as CSV (UTF-8 with BOM so Excel reads it correctly).
+      exportLedger: () => {
+        const cell = v => { const t = String(v == null ? '' : v); return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+        const rows = [['ID', 'Date', 'Description', 'Category', 'Founder', 'Payment method', 'Status', 'Amount (INR)']]
+          .concat(ledgerRaw.map(e => [e.id, e.date, e.desc, e.category, fmap[e.fid] ? fmap[e.fid].name : e.founderName, e.method, e.status, e.amount]));
+        const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'protocore-expenses-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      },
       founderOptions: ['All founders'].concat(founders.map(f => f.name)),
       categoryOptions: ['All categories'].concat(s.categories),
       statusOptions: ['All statuses', 'Draft', 'Submitted', 'Approved', 'Rejected', 'Reimbursed'],

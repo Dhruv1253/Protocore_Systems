@@ -455,7 +455,16 @@
             <input type="text" value="{{ lName }}" onChange="{{ onLName }}" placeholder="Full name" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
           </sc-if>
           <input type="email" value="{{ lEmail }}" onChange="{{ onLEmail }}" placeholder="Email" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
-          <input type="password" value="{{ lPass }}" onChange="{{ onLPass }}" placeholder="Password" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:14px;font:400 14px Manrope,sans-serif">
+          <div style="position:relative;display:flex">
+            <input type="{{ passType }}" value="{{ lPass }}" onChange="{{ onLPass }}" placeholder="Password" style="flex:1;min-width:0;background:#F9FAFB;border:1px solid #E4E7EC;padding:14px 48px 14px 14px;font:400 14px Manrope,sans-serif">
+            <button type="button" onClick="{{ togglePass }}" aria-label="{{ passToggleLabel }}" title="{{ passToggleLabel }}" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:0;color:#667085;cursor:pointer" style-hover="color:#0F1720">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+                <sc-if value="{{ passShown }}" hint-placeholder-val="{{ false }}"><line x1="3" y1="3" x2="21" y2="21"></line></sc-if>
+              </svg>
+            </button>
+          </div>
           <button onClick="{{ doLogin }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer;margin-top:6px">{{ loginBtn }}</button>
           <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
             <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ authError }}</div>
@@ -807,7 +816,7 @@ class Component extends DCLogic {
     role: null, email: null, uid: null,
     prodFilter: 'All', q: '', level: 'All',
     fFounder: 'All founders', fCategory: 'All categories', fStatus: 'All statuses',
-    lEmail: '', lPass: '', lName: '', authMode: 'signin', authBusy: false, authError: '', authNote: '', afterLogin: null,
+    lEmail: '', lPass: '', lName: '', showPass: false, authMode: 'signin', authBusy: false, authError: '', authNote: '', afterLogin: null,
     buyBusy: false, buyError: '',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
     nDate: new Date().toISOString().slice(0, 10), nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '',
@@ -895,7 +904,7 @@ class Component extends DCLogic {
         }
         const stopEnrolled = fb.watchEnrollments(u.uid, ids => this.setState({ enrolled: ids }));
         const next = s.route !== 'login' ? s.route : (s.afterLogin || (u.role === 'STUDENT' ? 'learning' : 'dash'));
-        const signedIn = { authBusy: false, authError: '', authNote: '', lPass: '', afterLogin: null, role: u.role, uid: u.uid, email: u.name, route: next };
+        const signedIn = { authBusy: false, authError: '', authNote: '', lPass: '', showPass: false, afterLogin: null, role: u.role, uid: u.uid, email: u.name, route: next };
         if (u.role === 'STUDENT') {
           this.unsubData = stopEnrolled;
           this.setState(signedIn);
@@ -1113,6 +1122,9 @@ class Component extends DCLogic {
 
       lEmail: s.lEmail, lPass: s.lPass, lName: s.lName, onLEmail: this.onInput('lEmail'), onLPass: this.onInput('lPass'), onLName: this.onInput('lName'),
       isSignUp: s.authMode === 'signup', isSignIn: s.authMode !== 'signup',
+      passType: s.showPass ? 'text' : 'password', passShown: !!s.showPass,
+      passToggleLabel: s.showPass ? 'Hide password' : 'Show password',
+      togglePass: () => this.setState({ showPass: !s.showPass }),
       authTitle: s.authMode === 'signup' ? 'Create your account' : 'Sign in to Protocore',
       loginBtn: s.authBusy ? 'Please wait…' : (s.authMode === 'signup' ? 'Create account' : 'Sign in'),
       authSwitchText: s.authMode === 'signup' ? 'Already have an account? Sign in' : 'New here? Create an account',

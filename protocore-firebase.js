@@ -179,8 +179,8 @@ function loadRazorpay() {
  * Runs one Razorpay Checkout for one or more courses. Resolves to the purchased course ids once the server has
  * verified the payment and enrolled the user; resolves to 'dismissed' if the buyer closes the window without paying.
  */
-export async function buyCourses(courseIds, buyer) {
-  const order = await callApi('/api/create-order', { courseIds });
+export async function buyCourses(courseIds, buyer, coupon) {
+  const order = await callApi('/api/create-order', coupon ? { courseIds, coupon } : { courseIds });
   await loadRazorpay();
   return new Promise((resolve, reject) => {
     // A failed attempt keeps the window open so the buyer can retry; report it only if they then give up.
@@ -198,4 +198,12 @@ export async function buyCourses(courseIds, buyer) {
   });
 }
 
-export const buyCourse = (courseId, buyer) => buyCourses([courseId], buyer);
+export const buyCourse = (courseId, buyer, coupon) => buyCourses([courseId], buyer, coupon);
+
+/** Checks a coupon code with the server; resolves to { code, percent } or throws with a readable message. */
+export async function checkCoupon(code) {
+  const r = await fetch('/api/coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || 'Could not check the coupon. Please try again.');
+  return data;
+}

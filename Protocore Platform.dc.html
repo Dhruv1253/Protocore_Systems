@@ -441,6 +441,17 @@
                 <button onClick="{{ goLearning }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">Continue learning</button>
               </sc-if>
               <sc-if value="{{ courseNotOwned }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:{{ couponFormDisplay }};gap:8px">
+                    <input value="{{ couponInput }}" onChange="{{ onCouponInput }}" placeholder="Coupon code" aria-label="Coupon code" style="flex:1;min-width:0;background:#F9FAFB;border:1px solid #E4E7EC;padding:11px 12px;font:500 13px 'IBM Plex Mono',monospace;letter-spacing:.04em;text-transform:uppercase">
+                    <button onClick="{{ applyCoupon }}" style="background:#FFFFFF;color:#0F1720;border:1px solid #0F1720;padding:10px 16px;font:600 13px Manrope,sans-serif;cursor:pointer;white-space:nowrap">{{ couponBtn }}</button>
+                  </div>
+                  <div style="display:{{ couponAppliedDisplay }};align-items:center;justify-content:space-between;gap:10px;background:#ECFDF3;border:1px solid #A9EFC5;border-radius:10px;padding:10px 12px">
+                    <span style="font:500 12px/1.3 'IBM Plex Mono',monospace;letter-spacing:.04em;color:#067647">✓ {{ couponLabel }}</span>
+                    <span onClick="{{ removeCoupon }}" style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#D81324;cursor:pointer">REMOVE</span>
+                  </div>
+                  <div style="display:{{ couponErrorDisplay }};font:400 12.5px/1.4 Manrope,sans-serif;color:#912018">{{ couponError }}</div>
+                </div>
                 <button onClick="{{ buyCourse }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ buyBtn }}</button>
                 <button onClick="{{ courseCart.toggle }}" aria-pressed="{{ courseCart.aria }}" style="background:{{ courseCart.bg }};color:{{ courseCart.fg }};border:1px solid {{ courseCart.bd }};padding:13px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ courseCart.label }}</button>
                 <sc-if value="{{ buyError }}" hint-placeholder-val="{{ false }}">
@@ -864,7 +875,20 @@
             <div style="position:sticky;top:96px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:24px;display:flex;flex-direction:column;gap:14px">
               <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Order summary</div>
               <div style="display:flex;justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#475467"><span>{{ cartCountLabel }}</span><span style="text-decoration:line-through;color:#98A2B3">{{ cartMrp }}</span></div>
-              <div style="display:flex;justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#067647"><span>You save</span><span>{{ cartSavings }}</span></div>
+              <div style="display:flex;justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#475467"><span>Course price</span><span>{{ cartSubtotal }}</span></div>
+              <div style="display:{{ couponRowDisplay }};justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#067647"><span>Coupon discount</span><span>{{ cartCouponOff }}</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:{{ couponFormDisplay }};gap:8px">
+                  <input value="{{ couponInput }}" onChange="{{ onCouponInput }}" placeholder="Coupon code" aria-label="Coupon code" style="flex:1;min-width:0;background:#F9FAFB;border:1px solid #E4E7EC;padding:11px 12px;font:500 13px 'IBM Plex Mono',monospace;letter-spacing:.04em;text-transform:uppercase">
+                  <button onClick="{{ applyCoupon }}" style="background:#FFFFFF;color:#0F1720;border:1px solid #0F1720;padding:10px 16px;font:600 13px Manrope,sans-serif;cursor:pointer;white-space:nowrap">{{ couponBtn }}</button>
+                </div>
+                <div style="display:{{ couponAppliedDisplay }};align-items:center;justify-content:space-between;gap:10px;background:#ECFDF3;border:1px solid #A9EFC5;border-radius:10px;padding:10px 12px">
+                  <span style="font:500 12px/1.3 'IBM Plex Mono',monospace;letter-spacing:.04em;color:#067647">✓ {{ couponLabel }}</span>
+                  <span onClick="{{ removeCoupon }}" style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#D81324;cursor:pointer">REMOVE</span>
+                </div>
+                <div style="display:{{ couponErrorDisplay }};font:400 12.5px/1.4 Manrope,sans-serif;color:#912018">{{ couponError }}</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#067647"><span>Total savings</span><span>{{ cartSavings }}</span></div>
               <div style="border-top:1px solid #EAECF0;padding-top:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 15px/1 Manrope,sans-serif">Total</span><span style="font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ cartTotal }}</span></div>
               <button onClick="{{ checkoutCart }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ checkoutBtn }}</button>
               <sc-if value="{{ cartError }}" hint-placeholder-val="{{ false }}">
@@ -972,10 +996,10 @@ class Component extends DCLogic {
   ];
 
   courses = [
-    { id: 'c1', title: 'LT Control Panel Design from Scratch', level: 'Beginner', instructor: 'V. Wagh', duration: '14 h 20 m', rating: '4.8', enrolled: '1,284', price: 1, mrp: 7999, blurb: 'Load lists, switchgear selection, busbar sizing and enclosure layout, worked end to end on a real panel.', desc: 'Start from a customer load list and finish with a fabrication-ready panel drawing. The course works through switchgear selection, short-circuit and busbar calculations, cable sizing, GA and schematic drafting, and the routine tests a panel must pass before dispatch.', learn: ['Read a load list and build a panel schedule', 'Select MCCBs, contactors and relays with discrimination', 'Size busbars and cables to IS/IEC', 'Draw GA and schematics that a shop can build from', 'Run routine tests and document them'], reqs: ['Basic electrical engineering background', 'AutoCAD or equivalent drafting tool', 'No prior panel-building experience needed'], sections: [ { title: 'Foundations', meta: '5 LESSONS · 2 h 10 m', lessons: [ { title: 'How a panel is specified', tag: 'PREVIEW', len: '12:04' }, { title: 'Reading the load list', tag: '', len: '18:40' }, { title: 'Switchgear families', tag: '', len: '24:12' } ] }, { title: 'Calculations', meta: '7 LESSONS · 4 h 05 m', lessons: [ { title: 'Short-circuit calculation', tag: '', len: '31:22' }, { title: 'Busbar sizing worked example', tag: 'PREVIEW', len: '27:50' }, { title: 'Cable and earthing sizing', tag: '', len: '22:18' } ] }, { title: 'Drawings and testing', meta: '6 LESSONS · 3 h 40 m', lessons: [ { title: 'GA drawing conventions', tag: '', len: '29:10' }, { title: 'Schematic drafting', tag: '', len: '34:44' }, { title: 'Routine test protocol', tag: '', len: '21:05' } ] } ], reviews: [ { stars: '5', who: 'Amit R., design engineer', text: 'The busbar and short-circuit sections alone were worth it. Notation matches what we actually use on drawings.' }, { stars: '4', who: 'Priya N., EPC contractor', text: 'Clear and practical. Would have liked more on export projects, but the fundamentals are well covered.' } ] },
-    { id: 'c2', title: 'VFD and Soft Starter Commissioning', level: 'Intermediate', instructor: 'V. Wagh', duration: '9 h 45 m', rating: '4.7', enrolled: '812', price: 1, mrp: 5999, blurb: 'Parameter sets, PID loops, harmonics and fault diagnosis on live drive panels.', desc: 'A commissioning-focused course covering drive selection, parameter groups, PID pressure and flow loops, harmonic mitigation and systematic fault diagnosis, filmed on working panels.', learn: ['Set up a drive from nameplate to running', 'Tune PID loops for pressure and flow', 'Diagnose trips from fault codes and waveforms', 'Assess and mitigate harmonics'], reqs: ['Familiarity with motor starters', 'Access to a VFD is helpful but not required'], sections: [ { title: 'Drive basics', meta: '4 LESSONS · 1 h 50 m', lessons: [ { title: 'Drive topology and ratings', tag: 'PREVIEW', len: '15:30' }, { title: 'Parameter groups explained', tag: '', len: '26:15' } ] }, { title: 'Commissioning', meta: '6 LESSONS · 4 h 10 m', lessons: [ { title: 'First start checklist', tag: '', len: '19:48' }, { title: 'PID tuning on a booster set', tag: '', len: '38:02' }, { title: 'Fault code walkthrough', tag: '', len: '33:27' } ] } ], reviews: [ { stars: '5', who: 'Vikram S., service engineer', text: 'The fault-code walkthrough is the closest thing to shadowing a senior commissioning engineer.' } ] },
-    { id: 'c3', title: 'PLC Programming for Pump Automation', level: 'Intermediate', instructor: 'D. Gaund', duration: '16 h 05 m', rating: '4.9', enrolled: '1,043', price: 1, mrp: 9999, blurb: 'Ladder logic, sequencing, alarm handling and HMI design for water systems.', desc: 'Build a complete pump-station program: level-based sequencing, duty rotation, dry-run protection, alarm handling with first-out annunciation, and an HMI that an operator can actually use.', learn: ['Structure a program into readable routines', 'Write duty/standby sequencing and rotation', 'Handle alarms and first-out annunciation', 'Design operator screens that reduce errors'], reqs: ['Basic ladder logic familiarity', 'Vendor software installed (trial is fine)'], sections: [ { title: 'Program structure', meta: '5 LESSONS · 3 h 20 m', lessons: [ { title: 'From control philosophy to routines', tag: 'PREVIEW', len: '22:40' }, { title: 'Naming and tag discipline', tag: '', len: '17:12' } ] }, { title: 'Pump logic', meta: '8 LESSONS · 6 h 15 m', lessons: [ { title: 'Level sequencing', tag: '', len: '41:30' }, { title: 'Duty rotation and run hours', tag: '', len: '28:55' }, { title: 'Dry-run and fault handling', tag: '', len: '35:18' } ] } ], reviews: [ { stars: '5', who: 'Kiran M., automation lead', text: 'Tag discipline and first-out alarms are rarely taught. This course does both properly.' } ] },
-    { id: 'c4', title: 'IoT Remote Monitoring for Panels', level: 'Advanced', instructor: 'D. Gaund', duration: '7 h 30 m', rating: '4.6', enrolled: '496', price: 1, mrp: 5499, blurb: 'Edge gateways, Modbus mapping, dashboards and alerting for installed panels.', desc: 'Retrofit monitoring onto panels already in service: gateway wiring, Modbus register mapping, data models, dashboard design and an alerting scheme that does not cry wolf.', learn: ['Wire and configure an edge gateway', 'Map Modbus registers to a clean data model', 'Design dashboards operators trust', 'Build alert rules with sensible thresholds'], reqs: ['Comfort with panel wiring', 'Basic networking knowledge'], sections: [ { title: 'Edge', meta: '4 LESSONS · 2 h 40 m', lessons: [ { title: 'Gateway selection', tag: 'PREVIEW', len: '16:22' }, { title: 'Modbus register mapping', tag: '', len: '30:04' } ] }, { title: 'Cloud and alerts', meta: '5 LESSONS · 3 h 05 m', lessons: [ { title: 'Data model design', tag: '', len: '24:48' }, { title: 'Alert rules and escalation', tag: '', len: '27:36' } ] } ], reviews: [ { stars: '5', who: 'Nikhil T., AMC manager', text: 'We shipped a monitoring retrofit to two sites using exactly this approach.' } ] }
+    { id: 'c1', title: 'LT Control Panel Design from Scratch', level: 'Beginner', instructor: 'V. Wagh', duration: '14 h 20 m', rating: '4.8', enrolled: '1,284', price: 10, mrp: 7999, blurb: 'Load lists, switchgear selection, busbar sizing and enclosure layout, worked end to end on a real panel.', desc: 'Start from a customer load list and finish with a fabrication-ready panel drawing. The course works through switchgear selection, short-circuit and busbar calculations, cable sizing, GA and schematic drafting, and the routine tests a panel must pass before dispatch.', learn: ['Read a load list and build a panel schedule', 'Select MCCBs, contactors and relays with discrimination', 'Size busbars and cables to IS/IEC', 'Draw GA and schematics that a shop can build from', 'Run routine tests and document them'], reqs: ['Basic electrical engineering background', 'AutoCAD or equivalent drafting tool', 'No prior panel-building experience needed'], sections: [ { title: 'Foundations', meta: '5 LESSONS · 2 h 10 m', lessons: [ { title: 'How a panel is specified', tag: 'PREVIEW', len: '12:04' }, { title: 'Reading the load list', tag: '', len: '18:40' }, { title: 'Switchgear families', tag: '', len: '24:12' } ] }, { title: 'Calculations', meta: '7 LESSONS · 4 h 05 m', lessons: [ { title: 'Short-circuit calculation', tag: '', len: '31:22' }, { title: 'Busbar sizing worked example', tag: 'PREVIEW', len: '27:50' }, { title: 'Cable and earthing sizing', tag: '', len: '22:18' } ] }, { title: 'Drawings and testing', meta: '6 LESSONS · 3 h 40 m', lessons: [ { title: 'GA drawing conventions', tag: '', len: '29:10' }, { title: 'Schematic drafting', tag: '', len: '34:44' }, { title: 'Routine test protocol', tag: '', len: '21:05' } ] } ], reviews: [ { stars: '5', who: 'Amit R., design engineer', text: 'The busbar and short-circuit sections alone were worth it. Notation matches what we actually use on drawings.' }, { stars: '4', who: 'Priya N., EPC contractor', text: 'Clear and practical. Would have liked more on export projects, but the fundamentals are well covered.' } ] },
+    { id: 'c2', title: 'VFD and Soft Starter Commissioning', level: 'Intermediate', instructor: 'V. Wagh', duration: '9 h 45 m', rating: '4.7', enrolled: '812', price: 10, mrp: 5999, blurb: 'Parameter sets, PID loops, harmonics and fault diagnosis on live drive panels.', desc: 'A commissioning-focused course covering drive selection, parameter groups, PID pressure and flow loops, harmonic mitigation and systematic fault diagnosis, filmed on working panels.', learn: ['Set up a drive from nameplate to running', 'Tune PID loops for pressure and flow', 'Diagnose trips from fault codes and waveforms', 'Assess and mitigate harmonics'], reqs: ['Familiarity with motor starters', 'Access to a VFD is helpful but not required'], sections: [ { title: 'Drive basics', meta: '4 LESSONS · 1 h 50 m', lessons: [ { title: 'Drive topology and ratings', tag: 'PREVIEW', len: '15:30' }, { title: 'Parameter groups explained', tag: '', len: '26:15' } ] }, { title: 'Commissioning', meta: '6 LESSONS · 4 h 10 m', lessons: [ { title: 'First start checklist', tag: '', len: '19:48' }, { title: 'PID tuning on a booster set', tag: '', len: '38:02' }, { title: 'Fault code walkthrough', tag: '', len: '33:27' } ] } ], reviews: [ { stars: '5', who: 'Vikram S., service engineer', text: 'The fault-code walkthrough is the closest thing to shadowing a senior commissioning engineer.' } ] },
+    { id: 'c3', title: 'PLC Programming for Pump Automation', level: 'Intermediate', instructor: 'D. Gaund', duration: '16 h 05 m', rating: '4.9', enrolled: '1,043', price: 10, mrp: 9999, blurb: 'Ladder logic, sequencing, alarm handling and HMI design for water systems.', desc: 'Build a complete pump-station program: level-based sequencing, duty rotation, dry-run protection, alarm handling with first-out annunciation, and an HMI that an operator can actually use.', learn: ['Structure a program into readable routines', 'Write duty/standby sequencing and rotation', 'Handle alarms and first-out annunciation', 'Design operator screens that reduce errors'], reqs: ['Basic ladder logic familiarity', 'Vendor software installed (trial is fine)'], sections: [ { title: 'Program structure', meta: '5 LESSONS · 3 h 20 m', lessons: [ { title: 'From control philosophy to routines', tag: 'PREVIEW', len: '22:40' }, { title: 'Naming and tag discipline', tag: '', len: '17:12' } ] }, { title: 'Pump logic', meta: '8 LESSONS · 6 h 15 m', lessons: [ { title: 'Level sequencing', tag: '', len: '41:30' }, { title: 'Duty rotation and run hours', tag: '', len: '28:55' }, { title: 'Dry-run and fault handling', tag: '', len: '35:18' } ] } ], reviews: [ { stars: '5', who: 'Kiran M., automation lead', text: 'Tag discipline and first-out alarms are rarely taught. This course does both properly.' } ] },
+    { id: 'c4', title: 'IoT Remote Monitoring for Panels', level: 'Advanced', instructor: 'D. Gaund', duration: '7 h 30 m', rating: '4.6', enrolled: '496', price: 10, mrp: 5499, blurb: 'Edge gateways, Modbus mapping, dashboards and alerting for installed panels.', desc: 'Retrofit monitoring onto panels already in service: gateway wiring, Modbus register mapping, data models, dashboard design and an alerting scheme that does not cry wolf.', learn: ['Wire and configure an edge gateway', 'Map Modbus registers to a clean data model', 'Design dashboards operators trust', 'Build alert rules with sensible thresholds'], reqs: ['Comfort with panel wiring', 'Basic networking knowledge'], sections: [ { title: 'Edge', meta: '4 LESSONS · 2 h 40 m', lessons: [ { title: 'Gateway selection', tag: 'PREVIEW', len: '16:22' }, { title: 'Modbus register mapping', tag: '', len: '30:04' } ] }, { title: 'Cloud and alerts', meta: '5 LESSONS · 3 h 05 m', lessons: [ { title: 'Data model design', tag: '', len: '24:48' }, { title: 'Alert rules and escalation', tag: '', len: '27:36' } ] } ], reviews: [ { stars: '5', who: 'Nikhil T., AMC manager', text: 'We shipped a monitoring retrofit to two sites using exactly this approach.' } ] }
   ];
 
   state = {
@@ -987,6 +1011,8 @@ class Component extends DCLogic {
     buyBusy: false, buyError: '',
     // Course ids in the cart; kept in this browser's localStorage (see loadCart/setCart).
     cart: [], cartBusy: false, cartError: '',
+    // Applied coupon { code, percent } (checked by /api/coupon, re-checked by the server at checkout).
+    couponInput: '', coupon: null, couponBusy: false, couponError: '',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
     nDate: new Date().toISOString().slice(0, 10), nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '',
     saved: false, savedId: '', savingExp: false, saveError: '',
@@ -1184,6 +1210,9 @@ class Component extends DCLogic {
     const product = this.products.find(p => p.id === s.pid) || this.products[0];
     const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
     const sales = this.sales ? this.sales.summarize(s.sales, this.courses) : { count: 0, revenue: 0, byMonth: {}, byCourse: [] };
+    // Price the buyer pays after any applied coupon; same rounding as api/_lib.js `discounted` (whole ₹, minimum ₹1).
+    const pct = s.coupon ? s.coupon.percent : 0;
+    const pay = c => Math.max(1, Math.round(c.price * (100 - pct) / 100));
     // Courses already owned drop out of the cart automatically.
     const cartIds = s.cart.filter(id => s.enrolled.indexOf(id) < 0);
     const cartCourses = cartIds.map(id => this.courses.find(c => c.id === id)).filter(Boolean);
@@ -1313,7 +1342,7 @@ class Component extends DCLogic {
         const owned = s.enrolled.indexOf(c.id) >= 0;
         return {
           title: c.title, meta: c.instructor.toUpperCase() + ' · ' + c.duration.toUpperCase() + ' · ' + c.level.toUpperCase(),
-          priceFmt: owned ? 'Continue →' : this.inr(c.price), priceColor: owned ? '#4ADE80' : 'inherit', open: this.nav('course', { cid: c.id })
+          priceFmt: owned ? 'Continue →' : this.inr(pay(c)), priceColor: owned ? '#4ADE80' : 'inherit', open: this.nav('course', { cid: c.id })
         };
       }),
       categoryChips: prodCats.map(c => chip(c, s.prodFilter === c, () => this.set('prodFilter', c))),
@@ -1328,7 +1357,7 @@ class Component extends DCLogic {
         (!q || (c.title + c.instructor + c.blurb + c.level).toLowerCase().indexOf(q) >= 0))
         .map(c => ({
           img: this.img(c.id), title: c.title, level: c.level, blurb: c.blurb, instructor: c.instructor, duration: c.duration,
-          rating: c.rating, enrolled: c.enrolled, priceFmt: this.inr(c.price), mrpFmt: this.inr(c.mrp),
+          rating: c.rating, enrolled: c.enrolled, priceFmt: this.inr(pay(c)), mrpFmt: this.inr(c.mrp),
           priceDisplay: s.enrolled.indexOf(c.id) >= 0 ? 'none' : 'flex',
           ownedDisplay: s.enrolled.indexOf(c.id) >= 0 ? 'flex' : 'none',
           toggleCart: toggleCart(c.id), cartLabel: cartBtn(c.id).label, cartBg: cartBtn(c.id).bg,
@@ -1336,8 +1365,8 @@ class Component extends DCLogic {
           open: this.nav('course', { cid: c.id })
         })),
       course: Object.assign({}, course, {
-        img: this.img(course.id), priceFmt: this.inr(course.price), mrpFmt: this.inr(course.mrp),
-        off: Math.round((1 - course.price / course.mrp) * 100) + '% OFF',
+        img: this.img(course.id), priceFmt: this.inr(pay(course)), mrpFmt: this.inr(course.mrp),
+        off: Math.round((1 - pay(course) / course.mrp) * 100) + '% OFF',
         lessonCount: course.sections.reduce((a, x) => a + x.lessons.length, 0),
         sections: course.sections.map(x => ({
           title: x.title, meta: x.meta,
@@ -1355,15 +1384,35 @@ class Component extends DCLogic {
       cartEmpty: cartIds.length === 0, cartHasItems: cartIds.length > 0,
       cartItems: cartCourses.map(c => ({
         title: c.title, img: this.img(c.id), meta: c.instructor.toUpperCase() + ' · ' + c.duration.toUpperCase() + ' · ' + c.level.toUpperCase(),
-        priceFmt: this.inr(c.price), mrpFmt: this.inr(c.mrp), open: this.nav('course', { cid: c.id }),
+        priceFmt: this.inr(pay(c)), mrpFmt: this.inr(c.mrp), open: this.nav('course', { cid: c.id }),
         remove: () => this.setCart(cartIds.filter(x => x !== c.id))
       })),
       cartCountLabel: cartIds.length + (cartIds.length === 1 ? ' course' : ' courses'),
       cartMrp: this.inr(cartCourses.reduce((a, c) => a + c.mrp, 0)),
-      cartSavings: this.inr(cartCourses.reduce((a, c) => a + c.mrp - c.price, 0)),
-      cartTotal: this.inr(cartCourses.reduce((a, c) => a + c.price, 0)),
+      cartSavings: this.inr(cartCourses.reduce((a, c) => a + c.mrp - pay(c), 0)),
+      cartTotal: this.inr(cartCourses.reduce((a, c) => a + pay(c), 0)),
+      cartSubtotal: this.inr(cartCourses.reduce((a, c) => a + c.price, 0)),
+      cartCouponOff: '−' + this.inr(cartCourses.reduce((a, c) => a + c.price - pay(c), 0)),
+      couponRowDisplay: s.coupon ? 'flex' : 'none',
+
+      // Coupon box (course page and cart): the code is checked by /api/coupon and re-checked at checkout.
+      couponInput: s.couponInput, onCouponInput: e => this.setState({ couponInput: e.target.value, couponError: '' }),
+      couponFormDisplay: s.coupon ? 'none' : 'flex', couponAppliedDisplay: s.coupon ? 'flex' : 'none',
+      couponLabel: s.coupon ? s.coupon.code + ' applied · ' + s.coupon.percent + '% off' : '',
+      couponBtn: s.couponBusy ? 'Checking…' : 'Apply', couponError: s.couponError,
+      couponErrorDisplay: s.couponError ? 'block' : 'none',
+      applyCoupon: () => {
+        const code = String(s.couponInput || '').trim();
+        if (!code || s.couponBusy) { return; }
+        if (!this.fb) { this.setState({ couponError: 'Still loading. Try again in a moment.' }); return; }
+        this.setState({ couponBusy: true, couponError: '' });
+        this.fb.checkCoupon(code)
+          .then(c => this.setState({ coupon: c, couponBusy: false, couponInput: '', buyError: '', cartError: '' }))
+          .catch(e => this.setState({ couponBusy: false, couponError: e.message }));
+      },
+      removeCoupon: () => this.setState({ coupon: null, couponError: '' }),
       cartError: s.cartError,
-      checkoutBtn: s.cartBusy ? 'Processing payment…' : 'Checkout · ' + this.inr(cartCourses.reduce((a, c) => a + c.price, 0)),
+      checkoutBtn: s.cartBusy ? 'Processing payment…' : 'Checkout · ' + this.inr(cartCourses.reduce((a, c) => a + pay(c), 0)),
       // One Razorpay payment for every course in the cart; the server prices and verifies it (see /api).
       checkoutCart: () => {
         if (s.cartBusy || !cartIds.length) { return; }
@@ -1372,7 +1421,7 @@ class Component extends DCLogic {
           return;
         }
         this.setState({ cartBusy: true, buyBusy: true, cartError: '' });
-        this.fb.buyCourses(cartIds, { name: s.email, email: this.fb.currentEmail() })
+        this.fb.buyCourses(cartIds, { name: s.email, email: this.fb.currentEmail() }, s.coupon && s.coupon.code)
           .then(r => {
             if (r === 'dismissed') { this.setState({ cartBusy: false, buyBusy: false }); return; }
             const bought = Array.isArray(r) ? r : cartIds;
@@ -1391,7 +1440,7 @@ class Component extends DCLogic {
         }
         const cid = course.id;
         this.setState({ buyBusy: true, buyError: '' });
-        this.fb.buyCourse(cid, { name: s.email, email: this.fb.currentEmail() })
+        this.fb.buyCourse(cid, { name: s.email, email: this.fb.currentEmail() }, s.coupon && s.coupon.code)
           .then(r => this.setState(r === 'dismissed' ? { buyBusy: false } : { buyBusy: false, enrolled: s.enrolled.concat([cid]), route: 'learning' }))
           .catch(e => this.setState({ buyBusy: false, buyError: e.message }));
       },

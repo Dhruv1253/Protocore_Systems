@@ -18,12 +18,28 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 // Prices are decided here, never by the browser. Keep in sync with `courses` in index.html.
 export const COURSES = {
-  // TEMP: ₹1 test prices. Real prices: c1 4999, c2 3999, c3 6499, c4 3499 (restore here and in index.html).
-  c1: { title: 'LT Control Panel Design from Scratch', price: 1 },
-  c2: { title: 'VFD and Soft Starter Commissioning', price: 1 },
-  c3: { title: 'PLC Programming for Pump Automation', price: 1 },
-  c4: { title: 'IoT Remote Monitoring for Panels', price: 1 }
+  // TEMP: ₹10 test prices. Real prices: c1 4999, c2 3999, c3 6499, c4 3499 (restore here and in index.html).
+  c1: { title: 'LT Control Panel Design from Scratch', price: 10 },
+  c2: { title: 'VFD and Soft Starter Commissioning', price: 10 },
+  c3: { title: 'PLC Programming for Pump Automation', price: 10 },
+  c4: { title: 'IoT Remote Monitoring for Panels', price: 10 }
 };
+
+// Coupon codes (case-insensitive) → percent off each course. Only the server knows this list.
+export const COUPONS = {
+  PROTOCORE10: 10,
+  PROTOCORE30: 30,
+  PROTOCORE50: 50
+};
+
+/** { code, percent } for a valid coupon, or null. */
+export function findCoupon(code) {
+  const c = String(code || '').trim().toUpperCase();
+  return COUPONS[c] ? { code: c, percent: COUPONS[c] } : null;
+}
+
+/** Course price (₹) after a percent discount, rounded to whole rupees; never below ₹1 (Razorpay's minimum). */
+export const discounted = (price, percent) => Math.max(1, Math.round(price * (100 - (percent || 0)) / 100));
 
 export class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }

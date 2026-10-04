@@ -25,25 +25,41 @@ export const COURSES = {
   c4: { title: 'IoT Remote Monitoring for Panels', price: 10 }
 };
 
-// Coupon codes (case-insensitive) → percent off each course. Only the server knows this list.
-export const COUPONS = {
-  PROTOCORE10: 10,
-  PROTOCORE30: 30,
-  PROTOCORE50: 50
-};
+export class HttpError extends Error {
+  constructor(status, message) { super(message); this.status = status; }
+}
 
-/** { code, percent } for a valid coupon, or null. */
-export function findCoupon(code) {
+/**
+ * Coupons live in Firestore and are managed from the Admin page:
+ *   coupons/{CODE}                    { code, percent, validFrom, validUntil, active, maxUses (0 = unlimited), onePerStudent, uses }
+ *   coupons/{CODE}/redemptions/{uid}  { orderId, at }  written here when a paid order used the coupon
+ * Returns { code, percent } if the coupon may be used now (by `uid`, when given); otherwise throws HttpError with the reason.
+ */
+export async function findCoupon(code, uid) {
   const c = String(code || '').trim().toUpperCase();
-  return COUPONS[c] ? { code: c, percent: COUPONS[c] } : null;
+  const bad = (msg) => new HttpError(400, msg);
+  if (!c) throw bad('Enter a coupon code.');
+  const snap = await db().collection('coupons').doc(c).get();
+  if (!snap.exists) throw bad('This coupon code is not valid.');
+  const k = snap.data();
+  const now = Date.now();
+  const from = k.validFrom && k.validFrom.toMillis ? k.validFrom.toMillis() : 0;
+  const until = k.validUntil && k.validUntil.toMillis ? k.validUntil.toMillis() : 0;
+  if (k.active !== true) throw bad('This coupon is no longer active.');
+  if (from && now < from) throw bad('This coupon is not active yet.');
+  if (until && now > until) throw bad('This coupon has expired.');
+  if (k.maxUses > 0 && (k.uses || 0) >= k.maxUses) throw bad('This coupon has reached its usage limit.');
+  if (k.onePerStudent && uid) {
+    const used = await snap.ref.collection('redemptions').doc(uid).get();
+    if (used.exists) throw bad('You have already used this coupon.');
+  }
+  const percent = Number(k.percent);
+  if (!(percent > 0 && percent <= 100)) throw bad('This coupon code is not valid.');
+  return { code: c, percent };
 }
 
 /** Course price (₹) after a percent discount, rounded to whole rupees; never below ₹1 (Razorpay's minimum). */
 export const discounted = (price, percent) => Math.max(1, Math.round(price * (100 - (percent || 0)) / 100));
-
-export class HttpError extends Error {
-  constructor(status, message) { super(message); this.status = status; }
-}
 
 function env(name) {
   const v = process.env[name];
@@ -98,7 +114,16 @@ export async function grantCourse(orderId, paymentId) {
     const items = orderItems(o);
     const refs = items.map((it) => store.collection('enrollments').doc(enrollmentId(o.uid, it.courseId)));
     const existing = await Promise.all(refs.map((r) => tx.get(r)));
-    if (o.status !== 'paid') tx.update(orderRef, { status: 'paid', paymentId, paidAt: FieldValue.serverTimestamp() });
+    const couponRef = o.coupon ? store.collection('coupons').doc(o.coupon) : null;
+    const couponSnap = couponRef && o.status !== 'paid' ? await tx.get(couponRef) : null;
+    if (o.status !== 'paid') {
+      tx.update(orderRef, { status: 'paid', paymentId, paidAt: FieldValue.serverTimestamp() });
+      // A coupon use counts only once its order is paid.
+      if (couponSnap && couponSnap.exists) {
+        tx.update(couponRef, { uses: FieldValue.increment(1) });
+        tx.set(couponRef.collection('redemptions').doc(o.uid), { orderId, at: FieldValue.serverTimestamp() });
+      }
+    }
     items.forEach((it, i) => {
       if (existing[i].exists) return;
       tx.set(refs[i], {

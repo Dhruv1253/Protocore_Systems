@@ -16,8 +16,7 @@ export default async function handler(req, res) {
     const courseIds = requested.filter((_, i) => !owned[i].exists);
     if (!courseIds.length) throw new HttpError(409, requested.length > 1 ? 'You already own these courses.' : 'You already own this course.');
 
-    const coupon = b.coupon ? findCoupon(b.coupon) : null;
-    if (b.coupon && !coupon) throw new HttpError(400, 'This coupon code is not valid.');
+    const coupon = b.coupon ? await findCoupon(b.coupon, user.uid) : null;
     const pct = coupon ? coupon.percent : 0;
     const items = courseIds.map((id) => ({ courseId: id, listPrice: COURSES[id].price, price: discounted(COURSES[id].price, pct) }));
     const amount = items.reduce((a, it) => a + it.price, 0) * 100;

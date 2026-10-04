@@ -43,6 +43,24 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Coupons: managed by the admin from the Admin page; checked and counted by the /api payment functions.
+    match /coupons/{code} {
+      allow read, delete: if isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.code == code
+        && request.resource.data.percent is number
+        && request.resource.data.percent > 0
+        && request.resource.data.percent <= 100
+        && request.resource.data.maxUses is number
+        && request.resource.data.validUntil is timestamp
+        && request.resource.data.validFrom is timestamp;
+      // Who used the coupon: written only by the server.
+      match /redemptions/{uid} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
     // Sequential expense numbers (EXP-0001, …): may only move forward by one.
     match /meta/counters {
       allow read: if isFounder();

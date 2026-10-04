@@ -16,7 +16,7 @@ import {
   createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, collection, doc, getDoc, onSnapshot, query, where, orderBy, runTransaction, deleteDoc, updateDoc, serverTimestamp
+  getFirestore, collection, doc, getDoc, onSnapshot, query, where, orderBy, runTransaction, deleteDoc, updateDoc, serverTimestamp, Timestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 
@@ -141,6 +141,46 @@ export async function setFounderActive(uid, active) {
   catch (e) { throw new Error(friendly(e)); }
 }
 
+/** Live list of coupons for the admin, newest first; cb(array of { code, percent, from, until (ms), active, maxUses, onePerStudent, uses }). */
+export function watchCoupons(cb, onError) {
+  if (!db) return () => {};
+  return onSnapshot(collection(db, 'coupons'), (qs) => {
+    const ms = (t) => (t && t.toMillis ? t.toMillis() : 0);
+    cb(qs.docs.map((d) => {
+      const k = d.data();
+      return {
+        code: d.id, percent: Number(k.percent) || 0, from: ms(k.validFrom), until: ms(k.validUntil), active: k.active === true,
+        maxUses: Number(k.maxUses) || 0, onePerStudent: !!k.onePerStudent, uses: Number(k.uses) || 0, created: ms(k.createdAt)
+      };
+    }).sort((a, b) => b.created - a.created));
+  }, (e) => onError && onError(friendly(e)));
+}
+
+/** Creates a coupon. from/until are Date objects; maxUses 0 means unlimited. */
+export async function createCoupon({ code, percent, from, until, maxUses, onePerStudent }) {
+  const id = String(code || '').trim().toUpperCase();
+  const ref = doc(db, 'coupons', id);
+  try {
+    await runTransaction(db, async (tx) => {
+      if ((await tx.get(ref)).exists()) throw new Error('A coupon with code ' + id + ' already exists.');
+      tx.set(ref, {
+        code: id, percent: Number(percent), validFrom: Timestamp.fromDate(from), validUntil: Timestamp.fromDate(until),
+        active: true, maxUses: Number(maxUses) || 0, onePerStudent: !!onePerStudent, uses: 0, createdAt: serverTimestamp()
+      });
+    });
+  } catch (e) { throw new Error(e.message && e.message.startsWith('A coupon') ? e.message : friendly(e)); }
+}
+
+export async function setCouponActive(code, active) {
+  try { await updateDoc(doc(db, 'coupons', code), { active: !!active }); }
+  catch (e) { throw new Error(friendly(e)); }
+}
+
+export async function deleteCoupon(code) {
+  try { await deleteDoc(doc(db, 'coupons', code)); }
+  catch (e) { throw new Error(friendly(e)); }
+}
+
 /** Live list of course ids the user has paid for; cb(array). */
 export function watchEnrollments(uid, cb, onError) {
   if (!db) return () => {};
@@ -202,7 +242,10 @@ export const buyCourse = (courseId, buyer, coupon) => buyCourses([courseId], buy
 
 /** Checks a coupon code with the server; resolves to { code, percent } or throws with a readable message. */
 export async function checkCoupon(code) {
-  const r = await fetch('/api/coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+  const user = auth && auth.currentUser;
+  const headers = { 'Content-Type': 'application/json' };
+  if (user) headers.Authorization = 'Bearer ' + await user.getIdToken();
+  const r = await fetch('/api/coupon', { method: 'POST', headers, body: JSON.stringify({ code }) });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(data.error || 'Could not check the coupon. Please try again.');
   return data;

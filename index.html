@@ -949,6 +949,51 @@
             </div>
           </div>
         </div>
+        <!-- Coupons: create time-limited discount codes; checked and counted by the server at checkout -->
+        <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+          <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">
+            <span>Coupons</span><span>Times in your local time (IST)</span>
+          </div>
+          <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:12px;align-items:end">
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">Code
+              <input value="{{ kCode }}" onChange="{{ onKCode }}" placeholder="DIWALI40" maxlength="20" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:11px 12px;font:500 13px 'IBM Plex Mono',monospace;letter-spacing:.04em;color:#0F1720;text-transform:none">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">% off
+              <input type="number" min="1" max="100" value="{{ kPct }}" onChange="{{ onKPct }}" placeholder="30" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:11px 12px;font:400 14px Manrope,sans-serif;color:#0F1720">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">Valid from
+              <input type="datetime-local" value="{{ kFrom }}" onChange="{{ onKFrom }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:10px 12px;font:400 13.5px Manrope,sans-serif;color:#0F1720">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">Valid until
+              <input type="datetime-local" value="{{ kUntil }}" onChange="{{ onKUntil }}" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:10px 12px;font:400 13.5px Manrope,sans-serif;color:#0F1720">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#667085">Max total uses
+              <input type="number" min="0" value="{{ kMax }}" onChange="{{ onKMax }}" placeholder="Unlimited" style="background:#F9FAFB;border:1px solid #E4E7EC;padding:11px 12px;font:400 14px Manrope,sans-serif;color:#0F1720">
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:12px 0;font:500 13px/1.3 Manrope,sans-serif;color:#0F1720;cursor:pointer">
+              <input type="checkbox" checked="{{ kOnce }}" onChange="{{ onKOnce }}" style="width:18px;height:18px;accent-color:#D81324">Once per student
+            </label>
+            <button onClick="{{ createCoupon }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 18px;font:600 13.5px Manrope,sans-serif;cursor:pointer">{{ kBtn }}</button>
+          </div>
+          <div style="display:{{ kErrorDisplay }};margin:14px 22px 0;background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:10px 12px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ kError }}</div>
+          <div style="display:{{ kNoteDisplay }};margin:14px 22px 0;background:#ECFDF3;border:1px solid #A9EFC5;border-radius:10px;padding:10px 12px;font:400 13px/1.5 Manrope,sans-serif;color:#067647">{{ kNote }}</div>
+          <sc-if value="{{ noCoupons }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:22px;font:400 13px/1.5 Manrope,sans-serif;color:#667085">No coupons yet. Create one above; it works on the website as soon as its start time arrives.</div>
+          </sc-if>
+          <div style="padding:8px 0">
+            <sc-for list="{{ couponRows }}" as="k" hint-placeholder-count="3">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:14px 22px;border-bottom:1px solid #F0F2F5">
+                <span style="font:600 14px/1.2 'IBM Plex Mono',monospace;letter-spacing:.04em;min-width:130px">{{ k.code }}</span>
+                <span style="font:600 13.5px/1.2 Manrope,sans-serif;min-width:70px">{{ k.pct }}</span>
+                <span style="font:400 12.5px/1.4 Manrope,sans-serif;color:#475467;flex:1 1 260px">{{ k.window }}</span>
+                <span style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:#667085;flex:1 1 200px">{{ k.uses }}</span>
+                <span style="font:500 10.5px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:{{ k.stBg }};color:{{ k.stFg }}">{{ k.status }}</span>
+                <span onClick="{{ k.toggle }}" style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#0F1720;cursor:pointer">{{ k.toggleLabel }}</span>
+                <span onClick="{{ k.del }}" style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#D81324;cursor:pointer">DELETE</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
         <div style="border:1px solid #E4E7EC;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
           <div style="padding:20px 22px;border-bottom:1px solid #EAECF0;font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Recent enquiries</div>
           <div style="overflow-x:auto">
@@ -1013,6 +1058,8 @@ class Component extends DCLogic {
     cart: [], cartBusy: false, cartError: '',
     // Applied coupon { code, percent } (checked by /api/coupon, re-checked by the server at checkout).
     couponInput: '', coupon: null, couponBusy: false, couponError: '',
+    // Admin coupon manager (Firestore `coupons`, admin only).
+    coupons: [], kCode: '', kPct: '', kFrom: '', kUntil: '', kMax: '', kOnce: true, kBusy: false, kError: '', kNote: '',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
     nDate: new Date().toISOString().slice(0, 10), nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '',
     saved: false, savedId: '', savingExp: false, saveError: '',
@@ -1070,6 +1117,12 @@ class Component extends DCLogic {
     window.scrollTo(0, 0);
   }
 
+  /** Date → 'YYYY-MM-DDTHH:MM' in the browser's local time, for <input type="datetime-local">. */
+  localInput(d) {
+    const p = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
   // Cart: course ids saved per browser so it survives reloads and signing in.
   loadCart() {
     try {
@@ -1100,7 +1153,7 @@ class Component extends DCLogic {
     this.setState({
       role: null, email: null, uid: null, route: 'login', authMode: 'signin', authBusy: false, authError: '',
       authNote: 'You were signed out after 5 minutes of inactivity. Sign in again to continue.',
-      founders: [], expenses: [], enrolled: [], sales: []
+      founders: [], expenses: [], enrolled: [], sales: [], coupons: [], coupon: null, couponInput: '', couponError: ''
     });
     if (this.fb) { this.fb.signOut(); }
   }
@@ -1136,7 +1189,7 @@ class Component extends DCLogic {
         const s = this.state;
         if (!u) {
           this.setState(Object.assign(
-            { authBusy: false, authError: err || s.authError, founders: [], expenses: [], enrolled: [], sales: [] },
+            { authBusy: false, authError: err || s.authError, founders: [], expenses: [], enrolled: [], sales: [], coupons: [], coupon: null, couponInput: '', couponError: '' },
             { role: null, uid: null, email: null, route: privateRoutes.concat(['learning']).indexOf(s.route) >= 0 ? 'home' : s.route }
           ));
           return;
@@ -1145,7 +1198,7 @@ class Component extends DCLogic {
         if (this.isIdle()) { this.idleSignOut(); return; }
         const stopEnrolled = fb.watchEnrollments(u.uid, ids => this.setState({ enrolled: ids }));
         const next = s.route !== 'login' ? s.route : (s.afterLogin || (u.role === 'STUDENT' ? 'learning' : 'dash'));
-        const signedIn = { authBusy: false, authError: '', authNote: '', lPass: '', showPass: false, afterLogin: null, role: u.role, uid: u.uid, email: u.name, route: next };
+        const signedIn = { authBusy: false, authError: '', authNote: '', lPass: '', showPass: false, afterLogin: null, role: u.role, uid: u.uid, email: u.name, route: next, coupon: null, couponInput: '', couponError: '' };
         if (u.role === 'STUDENT') {
           this.unsubData = stopEnrolled;
           this.setState(signedIn);
@@ -1165,7 +1218,8 @@ class Component extends DCLogic {
           }))
         }));
         const stopSales = sales.watchSales(list => this.setState({ sales: list }));
-        this.unsubData = () => { stopFounders(); stopExpenses(); stopEnrolled(); stopSales(); };
+        const stopCoupons = u.role === 'ADMIN' ? fb.watchCoupons(list => this.setState({ coupons: list })) : () => {};
+        this.unsubData = () => { stopFounders(); stopExpenses(); stopEnrolled(); stopSales(); stopCoupons(); };
         this.setState(signedIn);
       });
     }).catch(() => this.setState({ authError: 'Could not load sign-in. Check your connection and reload.' }));
@@ -1314,7 +1368,7 @@ class Component extends DCLogic {
       }),
       goAddExpense: this.nav('add'), goFounders: this.nav('founders'), goLearning: this.nav('learning'),
       logout: () => {
-        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [], enrolled: [], sales: [] });
+        this.setState({ role: null, email: null, uid: null, route: 'home', founders: [], expenses: [], enrolled: [], sales: [], coupons: [], coupon: null, couponInput: '', couponError: '' });
         if (this.fb) { this.fb.signOut(); }
       },
       appNav: appNavDefs.map(n => ({
@@ -1411,6 +1465,48 @@ class Component extends DCLogic {
           .catch(e => this.setState({ couponBusy: false, couponError: e.message }));
       },
       removeCoupon: () => this.setState({ coupon: null, couponError: '' }),
+
+      // ---- Admin: coupon manager ----
+      kCode: s.kCode, kPct: s.kPct, kMax: s.kMax, kOnce: s.kOnce,
+      kFrom: s.kFrom || this.localInput(new Date()),
+      kUntil: s.kUntil || this.localInput(new Date(Date.now() + 7 * 864e5)),
+      onKCode: e => this.setState({ kCode: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''), kError: '', kNote: '' }),
+      onKPct: this.onInput('kPct'), onKFrom: this.onInput('kFrom'), onKUntil: this.onInput('kUntil'), onKMax: this.onInput('kMax'),
+      onKOnce: e => this.setState({ kOnce: !!e.target.checked }),
+      kBtn: s.kBusy ? 'Creating…' : 'Create coupon',
+      kError: s.kError, kErrorDisplay: s.kError ? 'block' : 'none', kNote: s.kNote, kNoteDisplay: s.kNote ? 'block' : 'none',
+      createCoupon: () => {
+        if (s.kBusy || !this.fb) { return; }
+        const code = s.kCode.trim(), pctN = Number(s.kPct), maxN = s.kMax === '' ? 0 : Number(s.kMax);
+        const from = new Date(s.kFrom || this.localInput(new Date())), until = new Date(s.kUntil || this.localInput(new Date(Date.now() + 7 * 864e5)));
+        const err = !/^[A-Z0-9]{3,20}$/.test(code) ? 'Code must be 3–20 letters or numbers.'
+          : !(pctN > 0 && pctN <= 100) ? 'Discount must be between 1 and 100 %.'
+          : isNaN(from) || isNaN(until) ? 'Pick a valid start and end date.'
+          : until <= from ? 'The end must be after the start.'
+          : !(maxN >= 0 && Number.isInteger(maxN)) ? 'Max uses must be a whole number (leave empty for unlimited).' : '';
+        if (err) { this.setState({ kError: err, kNote: '' }); return; }
+        this.setState({ kBusy: true, kError: '', kNote: '' });
+        this.fb.createCoupon({ code, percent: pctN, from, until, maxUses: maxN, onePerStudent: s.kOnce })
+          .then(() => this.setState({ kBusy: false, kCode: '', kPct: '', kMax: '', kFrom: '', kUntil: '', kNote: 'Coupon ' + code + ' created.' }))
+          .catch(e => this.setState({ kBusy: false, kError: e.message }));
+      },
+      couponRows: s.coupons.map(k => {
+        const now = Date.now();
+        const st = !k.active ? ['Disabled', '#EAECF0', '#667085']
+          : k.maxUses && k.uses >= k.maxUses ? ['Used up', '#FEF0C7', '#93601A']
+          : now < k.from ? ['Scheduled', '#E0EAFF', '#3538CD']
+          : now > k.until ? ['Expired', '#FEE4E2', '#912018']
+          : ['Active', '#DCFAE6', '#067647'];
+        const fmt = ms => ms ? new Date(ms).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+        return {
+          code: k.code, pct: k.percent + '% off', window: fmt(k.from) + ' → ' + fmt(k.until),
+          uses: k.uses + (k.maxUses ? ' / ' + k.maxUses : ' / ∞') + ' uses' + (k.onePerStudent ? ' · once per student' : ''),
+          status: st[0], stBg: st[1], stFg: st[2], toggleLabel: k.active ? 'DISABLE' : 'ENABLE',
+          toggle: () => this.fb.setCouponActive(k.code, !k.active).catch(e => window.alert(e.message)),
+          del: () => { if (window.confirm('Delete coupon ' + k.code + '?')) { this.fb.deleteCoupon(k.code).catch(e => window.alert(e.message)); } }
+        };
+      }),
+      noCoupons: s.coupons.length === 0, isAdminRole: s.role === 'ADMIN',
       cartError: s.cartError,
       checkoutBtn: s.cartBusy ? 'Processing payment…' : 'Checkout · ' + this.inr(cartCourses.reduce((a, c) => a + pay(c), 0)),
       // One Razorpay payment for every course in the cart; the server prices and verifies it (see /api).

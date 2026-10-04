@@ -65,7 +65,13 @@ export function safeEqual(a, b) {
 
 export const enrollmentId = (uid, courseId) => uid + '_' + courseId;
 
-/** Marks the order paid and enrols its buyer. Safe to call more than once for the same order. */
+/** Courses in an order as [{ courseId, price (₹) }]. Orders made before the cart hold a single courseId. */
+export function orderItems(o) {
+  if (Array.isArray(o.items) && o.items.length) return o.items;
+  return [{ courseId: o.courseId, price: o.amount / 100 }];
+}
+
+/** Marks the order paid and enrols its buyer in every course in it. Safe to call more than once for the same order. */
 export async function grantCourse(orderId, paymentId) {
   const store = db();
   const orderRef = store.collection('orders').doc(orderId);
@@ -73,15 +79,17 @@ export async function grantCourse(orderId, paymentId) {
     const snap = await tx.get(orderRef);
     if (!snap.exists) throw new HttpError(404, 'Unknown order.');
     const o = snap.data();
-    const enrolRef = store.collection('enrollments').doc(enrollmentId(o.uid, o.courseId));
-    const enrol = await tx.get(enrolRef);
+    const items = orderItems(o);
+    const refs = items.map((it) => store.collection('enrollments').doc(enrollmentId(o.uid, it.courseId)));
+    const existing = await Promise.all(refs.map((r) => tx.get(r)));
     if (o.status !== 'paid') tx.update(orderRef, { status: 'paid', paymentId, paidAt: FieldValue.serverTimestamp() });
-    if (!enrol.exists) {
-      tx.set(enrolRef, {
-        uid: o.uid, email: o.email || '', courseId: o.courseId, orderId, paymentId,
-        amount: o.amount / 100, createdAt: FieldValue.serverTimestamp()
+    items.forEach((it, i) => {
+      if (existing[i].exists) return;
+      tx.set(refs[i], {
+        uid: o.uid, email: o.email || '', courseId: it.courseId, orderId, paymentId,
+        amount: it.price, createdAt: FieldValue.serverTimestamp()
       });
-    }
+    });
   });
 }
 

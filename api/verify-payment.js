@@ -1,5 +1,5 @@
 // POST { razorpay_order_id, razorpay_payment_id, razorpay_signature } from Razorpay Checkout → enrols the buyer.
-import { HttpError, db, keySecret, requireUser, hmacHex, safeEqual, grantCourse, fail } from './_lib.js';
+import { HttpError, db, keySecret, requireUser, hmacHex, safeEqual, grantCourse, orderItems, fail } from './_lib.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Use POST.' }); return; }
@@ -17,6 +17,6 @@ export default async function handler(req, res) {
     if (!order.exists || order.data().uid !== user.uid) throw new HttpError(403, 'This order belongs to another account.');
 
     await grantCourse(orderId, paymentId);
-    res.status(200).json({ ok: true, courseId: order.data().courseId });
+    res.status(200).json({ ok: true, courseIds: orderItems(order.data()).map((it) => it.courseId) });
   } catch (e) { fail(res, e); }
 }

@@ -30,6 +30,8 @@
     .pc-course { grid-template-columns: minmax(0, 1fr) !important; gap: 32px !important; }
     .pc-course > aside { order: -1; }
     .pc-course > aside > div { position: static !important; max-width: 560px; }
+    .pc-cart { grid-template-columns: minmax(0, 1fr) !important; }
+    .pc-cart > div:last-child { position: static !important; }
   }
 
   /* ---- Responsive: phone (≤ 760px) ---- */
@@ -66,6 +68,10 @@
     .pc-kpis > div > div:nth-child(2) { font-size: 21px !important; margin-top: 8px !important; }
     .pc-kpis > div > div:nth-child(3) { font-size: 9.5px !important; line-height: 1.4 !important; }
 
+    .pc-cart-row { grid-template-columns: 72px minmax(0, 1fr) auto !important; gap: 12px !important; padding: 14px !important; }
+    .pc-cart-row > div:first-child { width: 72px !important; height: 50px !important; }
+    .pc-auth > button:first-child { padding: 8px 10px !important; }
+
     .pc-learn-card { grid-template-columns: 88px minmax(0, 1fr) !important; gap: 14px 16px !important; padding: 18px !important; }
     .pc-learn-card > div:first-child { width: 88px !important; height: 60px !important; }
     .pc-learn-card > button { grid-column: 1 / -1; width: 100%; }
@@ -89,6 +95,10 @@
           </sc-for>
         </div>
         <div class="pc-auth" style="display:flex;align-items:center">
+          <button onClick="{{ goCart }}" aria-label="{{ cartAria }}" title="Cart" style="position:relative;margin-left:6px;display:flex;align-items:center;gap:6px;background:none;border:1px solid #E4E7EC;padding:8px 12px;font:500 13px Manrope,sans-serif;color:{{ cartNavFg }};cursor:pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle><path d="M2.5 3.5h2.6l2.4 11.2a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2l1.7-7.3H6.1"></path></svg>
+            <span style="display:{{ cartBadgeDisplay }};min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D81324;color:#FFFFFF;font:700 11px/20px Manrope,sans-serif;text-align:center">{{ cartCount }}</span>
+          </button>
           <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
             <button onClick="{{ goLogin }}" style="margin-left:8px;background:#0F1720;color:#F7F8FA;border:0;padding:11px 20px;font:600 13px Manrope,sans-serif;cursor:pointer">Login</button>
           </sc-if>
@@ -342,9 +352,12 @@
                 <div style="font:600 19px/1.22 Manrope,sans-serif;letter-spacing:-.01em">{{ c.title }}</div>
                 <div style="font:400 14px/1.55 Manrope,sans-serif;color:#667085;text-wrap:pretty">{{ c.blurb }}</div>
                 <div style="font:400 12.5px/1 'IBM Plex Mono',monospace;color:#667085">{{ c.instructor }} · {{ c.duration }}</div>
-                <div style="margin-top:auto;padding-top:14px;display:{{ c.priceDisplay }};align-items:baseline;gap:10px">
-                  <span style="font:700 22px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ c.priceFmt }}</span>
-                  <span style="font:400 13px/1 Manrope,sans-serif;color:#98A2B3;text-decoration:line-through">{{ c.mrpFmt }}</span>
+                <div style="margin-top:auto;padding-top:14px;display:{{ c.priceDisplay }};align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                  <div style="display:flex;align-items:baseline;gap:10px">
+                    <span style="font:700 22px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ c.priceFmt }}</span>
+                    <span style="font:400 13px/1 Manrope,sans-serif;color:#98A2B3;text-decoration:line-through">{{ c.mrpFmt }}</span>
+                  </div>
+                  <button onClick="{{ c.toggleCart }}" aria-pressed="{{ c.inCartAria }}" style="background:{{ c.cartBg }};color:{{ c.cartFg }};border:1px solid {{ c.cartBd }};padding:10px 14px;font:600 13px Manrope,sans-serif;cursor:pointer;white-space:nowrap">{{ c.cartLabel }}</button>
                 </div>
                 <div style="margin-top:auto;padding-top:14px;display:{{ c.ownedDisplay }};align-items:center;justify-content:space-between;gap:10px">
                   <span style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#067647;background:#DCFAE6;padding:6px 10px;border-radius:999px">✓ PURCHASED</span>
@@ -429,6 +442,7 @@
               </sc-if>
               <sc-if value="{{ courseNotOwned }}" hint-placeholder-val="{{ true }}">
                 <button onClick="{{ buyCourse }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ buyBtn }}</button>
+                <button onClick="{{ courseCart.toggle }}" aria-pressed="{{ courseCart.aria }}" style="background:{{ courseCart.bg }};color:{{ courseCart.fg }};border:1px solid {{ courseCart.bd }};padding:13px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ courseCart.label }}</button>
                 <sc-if value="{{ buyError }}" hint-placeholder-val="{{ false }}">
                   <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ buyError }}</div>
                 </sc-if>
@@ -815,6 +829,54 @@
       </section>
     </sc-if>
 
+    <!-- ============ CART ============ -->
+    <sc-if value="{{ isCart }}">
+      <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:24px">
+        <div>
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#D81324">PC ACADEMY</div>
+          <h1 style="margin:10px 0 0;font:700 32px/1 Manrope,sans-serif;letter-spacing:-.025em">Your cart</h1>
+        </div>
+        <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;padding:40px 28px;display:flex;flex-direction:column;align-items:flex-start;gap:14px">
+            <div style="font:600 18px/1.3 Manrope,sans-serif">Your cart is empty</div>
+            <div style="font:400 14px/1.55 Manrope,sans-serif;color:#667085">Add courses from the catalogue and buy them together in one payment.</div>
+            <button onClick="{{ goCourses }}" style="background:#0F1720;color:#F7F8FA;border:0;padding:13px 22px;font:600 14px Manrope,sans-serif;cursor:pointer">Browse courses</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ true }}">
+          <div class="pc-cart" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:24px;align-items:start">
+            <div style="background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+              <sc-for list="{{ cartItems }}" as="i" hint-placeholder-count="2">
+                <div class="pc-cart-row" style="display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:18px;align-items:center;padding:18px 20px;border-bottom:1px solid #F0F2F5">
+                  <div onClick="{{ i.open }}" role="img" aria-label="{{ i.title }}" style="width:96px;height:64px;border-radius:10px;cursor:pointer;background-color:#EDF0F4;background-image:url({{ i.img }});background-size:contain;background-position:center;background-repeat:no-repeat"></div>
+                  <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+                    <div onClick="{{ i.open }}" style="font:600 15.5px/1.3 Manrope,sans-serif;cursor:pointer">{{ i.title }}</div>
+                    <div style="font:400 11px/1.4 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#667085">{{ i.meta }}</div>
+                    <span onClick="{{ i.remove }}" style="align-self:flex-start;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#D81324;cursor:pointer">REMOVE</span>
+                  </div>
+                  <div style="text-align:right;display:flex;flex-direction:column;gap:6px">
+                    <span style="font:700 18px/1 Manrope,sans-serif">{{ i.priceFmt }}</span>
+                    <span style="font:400 12px/1 Manrope,sans-serif;color:#98A2B3;text-decoration:line-through">{{ i.mrpFmt }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="position:sticky;top:96px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:24px;display:flex;flex-direction:column;gap:14px">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#667085">Order summary</div>
+              <div style="display:flex;justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#475467"><span>{{ cartCountLabel }}</span><span style="text-decoration:line-through;color:#98A2B3">{{ cartMrp }}</span></div>
+              <div style="display:flex;justify-content:space-between;font:400 14px/1 Manrope,sans-serif;color:#067647"><span>You save</span><span>{{ cartSavings }}</span></div>
+              <div style="border-top:1px solid #EAECF0;padding-top:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 15px/1 Manrope,sans-serif">Total</span><span style="font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ cartTotal }}</span></div>
+              <button onClick="{{ checkoutCart }}" style="background:#D81324;color:#FFFFFF;border:0;padding:15px;font:600 14px Manrope,sans-serif;cursor:pointer">{{ checkoutBtn }}</button>
+              <sc-if value="{{ cartError }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#FEE4E2;border:1px solid #FCCFCB;border-radius:10px;padding:12px 14px;font:400 13px/1.5 Manrope,sans-serif;color:#912018">{{ cartError }}</div>
+              </sc-if>
+              <div style="font:400 11px/1.6 'IBM Plex Mono',monospace;color:#667085">One secure Razorpay payment for all courses · UPI, cards, netbanking, wallets. Every course unlocks on your account as soon as payment is confirmed.</div>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
     <!-- ============ ADMIN ============ -->
     <sc-if value="{{ isAdmin }}">
       <section style="max-width:1320px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:24px">
@@ -923,6 +985,8 @@ class Component extends DCLogic {
     fFounder: 'All founders', fCategory: 'All categories', fStatus: 'All statuses',
     lEmail: '', lPass: '', lName: '', showPass: false, authMode: 'signin', authBusy: false, authError: '', authNote: '', afterLogin: null,
     buyBusy: false, buyError: '',
+    // Course ids in the cart; kept in this browser's localStorage (see loadCart/setCart).
+    cart: [], cartBusy: false, cartError: '',
     fName: '', fEmail: '', fPhone: '', fSubject: '', fType: 'Product Enquiry', fMsg: '', sent: false, enquiryId: '',
     nDate: new Date().toISOString().slice(0, 10), nAmount: '', nCategory: 'Travel', nMethod: 'UPI', nStatus: 'Submitted', nDesc: '',
     saved: false, savedId: '', savingExp: false, saveError: '',
@@ -964,7 +1028,7 @@ class Component extends DCLogic {
   routeFromHash() {
     const parts = window.location.hash.replace(/^#\/?/, '').split('/');
     const route = parts[0] || 'home', id = parts[1];
-    const known = ['home', 'products', 'product', 'courses', 'course', 'contact', 'finance', 'login', 'dash', 'add', 'founders', 'learning', 'admin'];
+    const known = ['home', 'products', 'product', 'courses', 'course', 'contact', 'finance', 'login', 'dash', 'add', 'founders', 'learning', 'admin', 'cart'];
     if (known.indexOf(route) < 0) return { route: 'home' };
     if (route === 'product') return this.products.some(p => p.id === id) ? { route, pid: id } : { route: 'products' };
     if (route === 'course') return this.courses.some(c => c.id === id) ? { route, cid: id } : { route: 'courses' };
@@ -978,6 +1042,18 @@ class Component extends DCLogic {
     const fromLogin = window.location.hash === '#/login';
     window.history[fromLogin ? 'replaceState' : 'pushState'](null, '', h);
     window.scrollTo(0, 0);
+  }
+
+  // Cart: course ids saved per browser so it survives reloads and signing in.
+  loadCart() {
+    try {
+      const ids = JSON.parse(window.localStorage.getItem('pcCart') || '[]');
+      return Array.isArray(ids) ? ids.filter(id => this.courses.some(c => c.id === id)) : [];
+    } catch (e) { return []; }
+  }
+  setCart(ids) {
+    this.setState({ cart: ids, cartError: '' });
+    try { window.localStorage.setItem('pcCart', JSON.stringify(ids)); } catch (e) {}
   }
 
   // Auto sign-out after 5 minutes without mouse, keyboard, touch or scroll activity.
@@ -1024,7 +1100,7 @@ class Component extends DCLogic {
     window.addEventListener('popstate', this.onPopState);
     const start = this.routeFromHash();
     window.history.replaceState(null, '', this.routeHash(Object.assign({}, this.state, start)));
-    this.setState(start);
+    this.setState(Object.assign({ cart: this.loadCart() }, start));
     Promise.all([import('./protocore-firebase.js'), import('./protocore-sales.js')]).then(([fb, sales]) => {
       this.fb = fb;
       this.sales = sales;
@@ -1108,6 +1184,17 @@ class Component extends DCLogic {
     const product = this.products.find(p => p.id === s.pid) || this.products[0];
     const course = this.courses.find(c => c.id === s.cid) || this.courses[0];
     const sales = this.sales ? this.sales.summarize(s.sales, this.courses) : { count: 0, revenue: 0, byMonth: {}, byCourse: [] };
+    // Courses already owned drop out of the cart automatically.
+    const cartIds = s.cart.filter(id => s.enrolled.indexOf(id) < 0);
+    const cartCourses = cartIds.map(id => this.courses.find(c => c.id === id)).filter(Boolean);
+    const inCart = id => cartIds.indexOf(id) >= 0;
+    const toggleCart = id => e => {
+      if (e && e.stopPropagation) { e.stopPropagation(); }
+      this.setCart(inCart(id) ? cartIds.filter(x => x !== id) : cartIds.concat([id]));
+    };
+    const cartBtn = id => inCart(id)
+      ? { label: 'In cart ✓', bg: '#ECFDF3', fg: '#067647', bd: '#A9EFC5', aria: 'true' }
+      : { label: 'Add to cart', bg: '#FFFFFF', fg: '#0F1720', bd: '#0F1720', aria: 'false' };
     const months = this.sales ? this.sales.lastMonths(6) : [];
     // Investment entries are money founders put in; every other category is company spending paid from that pool.
     const isInvestment = e => e.category === 'Investment';
@@ -1244,6 +1331,8 @@ class Component extends DCLogic {
           rating: c.rating, enrolled: c.enrolled, priceFmt: this.inr(c.price), mrpFmt: this.inr(c.mrp),
           priceDisplay: s.enrolled.indexOf(c.id) >= 0 ? 'none' : 'flex',
           ownedDisplay: s.enrolled.indexOf(c.id) >= 0 ? 'flex' : 'none',
+          toggleCart: toggleCart(c.id), cartLabel: cartBtn(c.id).label, cartBg: cartBtn(c.id).bg,
+          cartFg: cartBtn(c.id).fg, cartBd: cartBtn(c.id).bd, inCartAria: cartBtn(c.id).aria,
           open: this.nav('course', { cid: c.id })
         })),
       course: Object.assign({}, course, {
@@ -1257,6 +1346,41 @@ class Component extends DCLogic {
       }),
       courseOwned: s.enrolled.indexOf(s.cid) >= 0,
       courseNotOwned: s.enrolled.indexOf(s.cid) < 0,
+      courseCart: Object.assign({ toggle: toggleCart(course.id) }, cartBtn(course.id)),
+
+      isCart: s.route === 'cart', goCart: this.nav('cart'),
+      cartCount: cartIds.length, cartBadgeDisplay: cartIds.length ? 'inline-block' : 'none',
+      cartAria: 'Cart, ' + cartIds.length + (cartIds.length === 1 ? ' course' : ' courses'),
+      cartNavFg: s.route === 'cart' ? '#D81324' : '#0F1720',
+      cartEmpty: cartIds.length === 0, cartHasItems: cartIds.length > 0,
+      cartItems: cartCourses.map(c => ({
+        title: c.title, img: this.img(c.id), meta: c.instructor.toUpperCase() + ' · ' + c.duration.toUpperCase() + ' · ' + c.level.toUpperCase(),
+        priceFmt: this.inr(c.price), mrpFmt: this.inr(c.mrp), open: this.nav('course', { cid: c.id }),
+        remove: () => this.setCart(cartIds.filter(x => x !== c.id))
+      })),
+      cartCountLabel: cartIds.length + (cartIds.length === 1 ? ' course' : ' courses'),
+      cartMrp: this.inr(cartCourses.reduce((a, c) => a + c.mrp, 0)),
+      cartSavings: this.inr(cartCourses.reduce((a, c) => a + c.mrp - c.price, 0)),
+      cartTotal: this.inr(cartCourses.reduce((a, c) => a + c.price, 0)),
+      cartError: s.cartError,
+      checkoutBtn: s.cartBusy ? 'Processing payment…' : 'Checkout · ' + this.inr(cartCourses.reduce((a, c) => a + c.price, 0)),
+      // One Razorpay payment for every course in the cart; the server prices and verifies it (see /api).
+      checkoutCart: () => {
+        if (s.cartBusy || !cartIds.length) { return; }
+        if (!s.uid) {
+          this.setState({ route: 'login', afterLogin: 'cart', authMode: 'signup', authError: '', authNote: 'Create an account or sign in to complete your purchase.' });
+          return;
+        }
+        this.setState({ cartBusy: true, buyBusy: true, cartError: '' });
+        this.fb.buyCourses(cartIds, { name: s.email, email: this.fb.currentEmail() })
+          .then(r => {
+            if (r === 'dismissed') { this.setState({ cartBusy: false, buyBusy: false }); return; }
+            const bought = Array.isArray(r) ? r : cartIds;
+            this.setState({ cartBusy: false, buyBusy: false, enrolled: s.enrolled.concat(bought.filter(id => s.enrolled.indexOf(id) < 0)), route: 'learning' });
+            this.setCart(cartIds.filter(id => bought.indexOf(id) < 0));
+          })
+          .catch(e => this.setState({ cartBusy: false, buyBusy: false, cartError: e.message }));
+      },
       buyBtn: s.buyBusy ? 'Processing payment…' : 'Buy now', buyError: s.buyError,
       // Payment is created and verified by /api (Razorpay); the course unlocks when the server writes the enrolment.
       buyCourse: () => {

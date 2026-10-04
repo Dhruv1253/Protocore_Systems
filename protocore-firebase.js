@@ -176,11 +176,11 @@ function loadRazorpay() {
 }
 
 /**
- * Runs Razorpay Checkout for a course. Resolves once the server has verified the payment and enrolled the user;
- * resolves to 'dismissed' if the buyer closes the window without paying.
+ * Runs one Razorpay Checkout for one or more courses. Resolves to the purchased course ids once the server has
+ * verified the payment and enrolled the user; resolves to 'dismissed' if the buyer closes the window without paying.
  */
-export async function buyCourse(courseId, buyer) {
-  const order = await callApi('/api/create-order', { courseId });
+export async function buyCourses(courseIds, buyer) {
+  const order = await callApi('/api/create-order', { courseIds });
   await loadRazorpay();
   return new Promise((resolve, reject) => {
     // A failed attempt keeps the window open so the buyer can retry; report it only if they then give up.
@@ -190,10 +190,12 @@ export async function buyCourse(courseId, buyer) {
       name: 'Protocore Systems', description: order.title,
       prefill: { name: buyer.name || '', email: buyer.email || '' },
       theme: { color: '#D81324' },
-      handler: (resp) => callApi('/api/verify-payment', resp).then(resolve, reject),
+      handler: (resp) => callApi('/api/verify-payment', resp).then((r) => resolve(r.courseIds || order.courseIds), reject),
       modal: { ondismiss: () => (lastError ? reject(lastError) : resolve('dismissed')) }
     });
     rzp.on('payment.failed', (r) => { lastError = new Error((r.error && r.error.description) || 'Payment failed.'); });
     rzp.open();
   });
 }
+
+export const buyCourse = (courseId, buyer) => buyCourses([courseId], buyer);

@@ -1,4 +1,5 @@
-// POST { courseId } with the buyer's Firebase ID token → creates a Razorpay order at the server-side price.
+// POST { courseIds: [...] } (or { courseId }) with the buyer's Firebase ID token
+// → one Razorpay order for all of them at the server-side prices, skipping courses the buyer already owns.
 import { COURSES, HttpError, db, keyId, keySecret, requireUser, enrollmentId, fail } from './_lib.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -6,15 +7,18 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Use POST.' }); return; }
   try {
     const user = await requireUser(req);
-    const courseId = req.body && req.body.courseId;
-    const course = COURSES[courseId];
-    if (!course) throw new HttpError(400, 'Unknown course.');
+    const b = req.body || {};
+    const requested = [...new Set(Array.isArray(b.courseIds) ? b.courseIds : [b.courseId])].filter(Boolean);
+    if (!requested.length || requested.some((id) => !COURSES[id])) throw new HttpError(400, 'Unknown course.');
 
     const store = db();
-    const owned = await store.collection('enrollments').doc(enrollmentId(user.uid, courseId)).get();
-    if (owned.exists) throw new HttpError(409, 'You already own this course.');
+    const owned = await Promise.all(requested.map((id) => store.collection('enrollments').doc(enrollmentId(user.uid, id)).get()));
+    const courseIds = requested.filter((_, i) => !owned[i].exists);
+    if (!courseIds.length) throw new HttpError(409, requested.length > 1 ? 'You already own these courses.' : 'You already own this course.');
 
-    const amount = course.price * 100;
+    const items = courseIds.map((id) => ({ courseId: id, price: COURSES[id].price }));
+    const amount = items.reduce((a, it) => a + it.price, 0) * 100;
+    const title = items.length === 1 ? COURSES[items[0].courseId].title : items.length + ' courses';
     const r = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
       headers: {
@@ -23,8 +27,8 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         amount, currency: 'INR',
-        receipt: (courseId + '-' + Date.now()).slice(0, 40),
-        notes: { uid: user.uid, courseId, email: user.email || '' }
+        receipt: ('cart-' + Date.now()).slice(0, 40),
+        notes: { uid: user.uid, courseIds: courseIds.join(','), email: user.email || '' }
       })
     });
     const order = await r.json();
@@ -34,10 +38,10 @@ export default async function handler(req, res) {
     }
 
     await store.collection('orders').doc(order.id).set({
-      uid: user.uid, email: user.email || '', courseId, amount, currency: 'INR',
+      uid: user.uid, email: user.email || '', items, courseId: courseIds[0], amount, currency: 'INR',
       status: 'created', createdAt: FieldValue.serverTimestamp()
     });
 
-    res.status(200).json({ orderId: order.id, amount, currency: 'INR', keyId: keyId(), title: course.title });
+    res.status(200).json({ orderId: order.id, amount, currency: 'INR', keyId: keyId(), title, courseIds });
   } catch (e) { fail(res, e); }
 }

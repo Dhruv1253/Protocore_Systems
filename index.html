@@ -147,7 +147,7 @@
           <div class="pc-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:1px;background:rgba(255,255,255,.1);border-top:1px solid rgba(255,255,255,.1)">
             <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
               <div style="background:#0B0F14;padding:24px 22px">
-                <div style="font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em">{{ s.v }}</div>
+                <div class="pc-stat-num" style="font:700 28px/1 Manrope,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ s.v }}</div>
                 <div style="margin-top:8px;font:400 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#8A949F">{{ s.k }}</div>
               </div>
             </sc-for>
@@ -1108,7 +1108,40 @@ class Component extends DCLogic {
     return { route };
   }
 
+  /**
+   * Home stats count up from 0 to their value when the strip scrolls into view (replays on every visit to Home).
+   * Only the text inside each number changes, so the template's final value is what remains.
+   */
+  animateStats() {
+    const box = document.querySelector('.pc-stats');
+    if (!box || box.dataset.counted) { return; }
+    box.dataset.counted = '1';
+    const items = [...box.querySelectorAll('.pc-stat-num')].map(el => {
+      const node = el.querySelector('.sc-interp') || el;
+      const final = node.textContent.trim();
+      const m = final.match(/^([\d,]+)(.*)$/);
+      return m ? { node, final, n: Number(m[1].replace(/,/g, '')), suffix: m[2] } : null;
+    }).filter(Boolean);
+    if (!items.length || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { return; }
+    items.forEach(it => { it.node.textContent = '0' + it.suffix; });
+    const run = () => {
+      const t0 = performance.now(), dur = 1800;
+      const tick = now => {
+        const p = Math.min(1, (now - t0) / dur), eased = 1 - Math.pow(1 - p, 3);
+        items.forEach(it => { it.node.textContent = p < 1 ? Math.round(it.n * eased).toLocaleString('en-IN') + it.suffix : it.final; });
+        if (p < 1) { window.requestAnimationFrame(tick); }
+      };
+      window.requestAnimationFrame(tick);
+    };
+    if (!('IntersectionObserver' in window)) { run(); return; }
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) { io.disconnect(); run(); }
+    }, { threshold: 0.35 });
+    io.observe(box);
+  }
+
   componentDidUpdate() {
+    if (this.state.route === 'home') { this.animateStats(); }
     const h = this.routeHash(this.state);
     if (window.location.hash === h) { return; }
     // Don't leave the sign-in page in history once the user is past it.
@@ -1180,6 +1213,7 @@ class Component extends DCLogic {
     const start = this.routeFromHash();
     window.history.replaceState(null, '', this.routeHash(Object.assign({}, this.state, start)));
     this.setState(Object.assign({ cart: this.loadCart() }, start));
+    window.requestAnimationFrame(() => { if (this.state.route === 'home') { this.animateStats(); } });
     Promise.all([import('./protocore-firebase.js'), import('./protocore-sales.js')]).then(([fb, sales]) => {
       this.fb = fb;
       this.sales = sales;

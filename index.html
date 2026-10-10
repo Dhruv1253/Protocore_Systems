@@ -1124,12 +1124,17 @@ class Component extends DCLogic {
     }).filter(Boolean);
     if (!items.length || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { return; }
     items.forEach(it => { it.node.textContent = '0' + it.suffix; });
+    // 3.5 s per number, each starting 250 ms after the previous; ease-out-quad keeps a steady climb that slows near the end.
     const run = () => {
-      const t0 = performance.now(), dur = 1800;
+      const t0 = performance.now(), dur = 3500, stagger = 250;
       const tick = now => {
-        const p = Math.min(1, (now - t0) / dur), eased = 1 - Math.pow(1 - p, 3);
-        items.forEach(it => { it.node.textContent = p < 1 ? Math.round(it.n * eased).toLocaleString('en-IN') + it.suffix : it.final; });
-        if (p < 1) { window.requestAnimationFrame(tick); }
+        let busy = false;
+        items.forEach((it, i) => {
+          const p = Math.min(1, Math.max(0, (now - t0 - i * stagger) / dur)), eased = p * (2 - p);
+          it.node.textContent = p < 1 ? Math.floor(it.n * eased).toLocaleString('en-IN') + it.suffix : it.final;
+          if (p < 1) { busy = true; }
+        });
+        if (busy) { window.requestAnimationFrame(tick); }
       };
       window.requestAnimationFrame(tick);
     };
